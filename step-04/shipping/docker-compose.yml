@@ -1,0 +1,45 @@
+version: '3'
+services:
+  shipping:
+    build: ./
+    ports:
+      - "9091:9091" # Dapr instances communicate over gRPC so we need to expose the gRPC port
+    environment:
+      - DAPR_HOST=dapr # Dapr sidecar host
+      - DAPR_PORT=50001 # Dapr sidecar port
+    depends_on:
+      - placement
+      
+  dapr:
+    image: "daprio/daprd:edge"
+    command: [
+      "./daprd",
+      "--app-id", "shipping",
+      "--app-channel-address", "shipping",
+      "--app-port", "9091",
+      "--app-protocol", "grpc",
+      "--placement-host-address", "placement:50006", # Dapr's placement service can be reach via the docker DNS entry
+      "--scheduler-host-address", "scheduler:50007", # Dapr's scheduler service can be reach via the docker DNS entry
+      "--resources-path", "./components"
+    ]
+    ports:
+      - "50001:50001" # Dapr sidecar gRPC port
+    volumes:
+        - "./components/:/components" # Mount our components folder for the runtime to use. The mounted location must match the --resources-path argument.
+    depends_on:
+      - shipping
+
+  placement:
+    image: "daprio/placement"
+    command: ["./placement", "--port", "50006"]
+    ports:
+      - "50006:50006"
+
+  scheduler:
+    image: "daprio/scheduler"
+    command: ["./scheduler", "--port", "50007", "--etcd-data-dir", "/data"]
+    ports:
+      - "50007:50007"
+    user: root
+    volumes:
+    - "./dapr-etcd-data/:/data"
