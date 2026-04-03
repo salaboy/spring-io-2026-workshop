@@ -1,0 +1,41 @@
+asyncapi: 3.0.0
+info:
+  title: Shipping Events
+  version: 1.0.0
+  description: This API allows to track the status of shipments.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+defaultContentType: application/json
+channels:
+  shipmentsStatus:
+    address: shipments/status
+    messages:
+      shipmentStatusUpdate:
+        $ref: '#/components/messages/ShipmentStatusUpdate'
+operations:
+  sendShipmentEvents:
+    action: send
+    channel: 
+      $ref: '#/channels/shipmentsStatus'
+    message:
+      - $ref: '#/channels/shipmentsStatus/messages/shipmentStatusUpdate'
+components:
+  messages:
+    ShipmentStatusUpdate:
+      payload:
+        $ref: '#/components/schemas/ShipmentStatus'
+schemas:
+  ShipmentStatus:
+    type: object
+    properties:
+      shipmentId:
+        type: string
+        description: The ID of the shipment
+      status:
+        type: string
+        description: The new status of the shipment (e.g. "pending", "shipped", "delivered")
+      statusDate:
+        type: string
+        format: date-time
+        description: The date and time when the shipment status was updated

@@ -1,0 +1,72 @@
+openapi: 3.1.0
+info:
+  title: Store API
+  version: 1.0.0
+  description: This API allows to order products from the store.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+paths:
+  /orders:
+    post:
+      summary: Create a new order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+      responses:
+        '201':
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '400':
+          description: Invalid request
+components:
+  schemas:
+    OrderRequest:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: The ID of the product to order
+        quantity:
+          type: integer
+          description: The quantity of the product to order
+        customer:
+          type: object
+          properties:
+            name:
+              type: string
+              description: The name of the customer
+            email:
+              type: string
+              description: The email of the customer
+      required:
+        - productId
+        - quantity
+    OrderResponse:
+      type: object
+      properties:
+        orderId:
+          type: string
+          description: The ID of the created order
+        orderDate:
+          type: string
+          format: date-time
+          description: The date and time when the order was created
+        status:
+          type: string
+          description: The status of the order
+        productId:
+          type: string
+          description: The ID of the ordered product
+        quantity:
+          type: integer
+          description: The quantity of the ordered product
+      required:
+        - orderId
+        - status
