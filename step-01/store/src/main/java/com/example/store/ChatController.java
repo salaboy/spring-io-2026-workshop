@@ -4,7 +4,6 @@ import com.example.store.model.MerchItem;
 import com.example.store.model.Order;
 import com.example.store.model.OrderLine;
 import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -14,9 +13,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class ChatController {
-
-    @Autowired
-    private MerchDisplayBroadcaster broadcaster;
 
     static final List<MerchItem> INVENTORY = List.of(
             new MerchItem("Spring Boot",       "T-Shirt", 50,  29.99, "https://spring.io/img/projects/spring-boot.svg"),
@@ -84,13 +80,18 @@ public class ChatController {
                             || item.type().toLowerCase().contains(q))
                     .toList();
         }
-        broadcaster.broadcast(items);
-        return "Showing " + items.size() + " merch item(s) in the catalog panel below the chat.";
+        String json = items.stream()
+                .map(item -> String.format(
+                        "{\"projectName\":\"%s\",\"type\":\"%s\",\"price\":%.2f,\"stock\":%d,\"logoUrl\":\"%s\"}",
+                        item.projectName(), item.type(), item.price(), item.quantity(), item.logoUrl()))
+                .collect(Collectors.joining(",", "[", "]"));
+        return "<merch-items>" + json + "</merch-items>";
     }
 
     @Tool(description = "Place a confirmed order for one or more Spring merch items. "
             + "Call this only after the user has explicitly confirmed they want to place the order. "
             + "Each line must include the project name, type (T-Shirt, Socks, or Sticker), and quantity.")
+
     public String placeOrder(List<OrderLine> items) {
         List<MerchItem> orderedItems = new ArrayList<>();
         double total = 0.0;
@@ -120,7 +121,7 @@ public class ChatController {
 
         String orderId = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         Order order = new Order(orderId, orderedItems, total);
-
+        System.out.println("Print Order: " + order);
         return String.format(
                 "Your order #%s has been placed successfully! 🎉%n" +
                 "Items: %s%n" +

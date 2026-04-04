@@ -1,5 +1,6 @@
 package com.example.store;
 
+import org.springframework.boot.micrometer.metrics.autoconfigure.export.otlp.OtlpMetricsConnectionDetails;
 import org.springframework.boot.micrometer.tracing.opentelemetry.autoconfigure.otlp.OtlpTracingConnectionDetails;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -28,4 +29,5 @@ public class ContainersConfig {
         return transport -> "http://" + jaegerContainer.getHost() + ":"
                 + jaegerContainer.getMappedPort(4318) + "/v1/traces";
     }
+
 }

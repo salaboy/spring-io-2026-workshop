@@ -1,13 +1,11 @@
 package com.example.store;
 
-import com.vaadin.flow.component.page.AppShellConfigurator;
-import com.vaadin.flow.component.page.Push;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.micrometer.metrics.autoconfigure.export.otlp.OtlpMetricsExportAutoConfiguration;
 
-@SpringBootApplication
-@Push
-public class StoreApplication implements AppShellConfigurator {
+@SpringBootApplication(exclude = OtlpMetricsExportAutoConfiguration.class)
+public class StoreApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(StoreApplication.class, args);
