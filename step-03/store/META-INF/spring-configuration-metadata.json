@@ -1,0 +1,36 @@
+{
+  "groups": [
+    {
+      "name": "spring.ai.chat.observations",
+      "type": "org.springframework.ai.model.chat.observation.autoconfigure.ChatObservationProperties",
+      "sourceType": "org.springframework.ai.model.chat.observation.autoconfigure.ChatObservationProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "spring.ai.chat.observations.include-error-logging",
+      "type": "java.lang.Boolean",
+      "description": "Whether to include error logging in the observations.",
+      "sourceType": "org.springframework.ai.model.chat.observation.autoconfigure.ChatObservationProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "spring.ai.chat.observations.log-completion",
+      "type": "java.lang.Boolean",
+      "description": "Whether to log the completion content in the observations.",
+      "sourceType": "org.springframework.ai.model.chat.observation.autoconfigure.ChatObservationProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "spring.ai.chat.observations.log-prompt",
+      "type": "java.lang.Boolean",
+      "description": "Whether to log the prompt content in the observations.",
+      "sourceType": "org.springframework.ai.model.chat.observation.autoconfigure.ChatObservationProperties",
+      "defaultValue": false
+    }
+  ],
+  "hints": [],
+  "ignored": {
+    "properties": []
+  }
+}
