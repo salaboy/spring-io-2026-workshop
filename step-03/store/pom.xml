@@ -9,7 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>store</artifactId>
+    <artifactId>store-step03</artifactId>
+    <name>Store Application :: Step 03</name>
+    <description>Store Application :: Step 03</description>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
