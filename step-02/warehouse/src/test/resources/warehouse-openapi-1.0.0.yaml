@@ -1,0 +1,131 @@
+openapi: 3.1.0
+info:
+  title: Warehouse API
+  version: 1.0.0
+  description: This API allows to manage the warehouse inventory.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+paths:
+  /inventory:
+    get:
+      summary: Get the current inventory
+      responses:
+        '200':
+          description: Inventory retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryResponse'
+              examples:
+                all products:
+                  value:
+                    products:
+                      - productId: "Spring Boot T-Shirt"
+                        description: "Nice t-shirt featuring Spring Boot"
+                        quantity: 50
+                      - productId: "Spring Boot Socks"
+                        description: "Comfortable socks with Spring Boot logo"
+                        quantity: 100
+                      - productId: "Spring Boot Sticker"
+                        description: "Stylish sticker with Spring Boot branding"
+                        quantity: 200
+  /inventory/{productId}:
+    get:
+      summary: Get the inventory for a specific product
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the product to retrieve the inventory for
+          examples:
+            Spring Boot T-Shirt:
+              value: "Spring Boot T-Shirt"
+            Spring Boot Socks:
+              value: "Spring Boot Socks"
+            Spring Boot Sticker:
+              value: "Spring Boot Sticker"
+      responses:
+        '200':
+          description: Product retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+              examples:
+                Spring Boot T-Shirt:
+                  value:
+                    productId: "Spring Boot T-Shirt"
+                    description: "Nice t-shirt featuring Spring Boot"
+                    quantity: 50
+                Spring Boot Socks:
+                  value:
+                    productId: "Spring Boot Socks"
+                    description: "Comfortable socks with Spring Boot logo"
+                    quantity: 100
+                Spring Boot Sticker:
+                  value:
+                    productId: "Spring Boot Sticker"
+                    description: "Stylish sticker with Spring Boot branding"
+                    quantity: 200
+        '404':
+          description: Product not found
+  /inventory/{productId}/acquire:
+    post:
+      summary: Acquire a specific quantity of a product from the inventory
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the product to acquire from the inventory
+          examples:
+            Spring Boot T-Shirt:
+              value: "Spring Boot T-Shirt"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  description: The quantity of the product to acquire from the inventory
+            examples:
+              Spring Boot T-Shirt:
+                value:
+                  quantity: 5
+      responses:
+        '200':
+          description: Product quantity acquired successfully
+          x-microcks-refs:
+            - 'Spring Boot T-Shirt'
+        '400':
+          description: Invalid request (e.g. insufficient quantity in stock)
+        '404':
+          description: Product not found
+components:
+  schemas:
+    InventoryResponse:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductResponse'
+    ProductResponse:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: The ID of the product
+        description:  
+          type: string
+          description: The description of the product
+        quantity:
+          type: integer
+          description: The quantity of the product in stock 
