@@ -1,0 +1,103 @@
+# yaml-language-server: $schema= https://microcks.io/schemas/APIExamples-v1alpha1-schema.json
+apiVersion: mocks.microcks.io/v1alpha1
+kind: APIExamples
+metadata:
+  name: Anthropic API
+  version: '0.83.0'
+operations:
+  'POST /v1/messages':
+    List inventory:
+      request:
+        headers:
+          Content-Type: application/json
+        body: |-
+          {
+            "model": "claude-haiku-4-5",
+            "messages": [
+              {
+                "role": "user",
+                "content": "List all the products in the inventory"
+              }
+            ]
+          }
+      response:
+        mediaType: application/json
+        body: |-
+          {
+            "id": "msg_013Zva2CMHLNnXjNJJKqJ2EF",
+            "model": "claude-haiku-4-5-20251001",
+            "role": "assistant",
+            "type": "message",
+            "content": [
+              {
+                "id": "toolu_01QkiEwunvaWC2cRh22A8Zi7",
+                "type": "tool_use",
+                "name": "listAllItems",
+                "input": {},
+                "caller": {"type":"direct"}
+              }
+            ],
+            "stop_reason": "tool_use",
+            "stop_sequence": null,
+            "stop_details": null,
+            "usage": {
+              "input_tokens":38,
+              "output_tokens":37
+            }
+          }
+    List inventory results:
+      request:
+        headers:
+          Content-Type: application/json
+        body: |-
+          {
+            "model": "claude-haiku-4-5",
+            "messages": [
+              {
+                "role": "user",
+                "content": "List all the products in the inventory"
+              },
+              {
+                "role": "assistant",
+                "content": [
+                  {
+                    "id": "toolu_01QkiEwunvaWC2cRh22A8Zi7",
+                    "type": "tool_use",
+                    "name": "listAllItems",
+                  }
+                ]
+              },
+              {
+                "role": "assistant",
+                "content": [
+                  {
+                    "tool_use_id": "toolu_01QkiEwunvaWC2cRh22A8Zi7",
+                    "type": "tool_result",
+                    "content": "Current Spring merch inventory: ...",
+                  }
+                ]
+              }
+            ]
+          }
+      response:
+        mediaType: application/json
+        body: |-
+          {
+            "id": "msg_01F4rrh2fJQfoaQTj4WqobJF",
+            "model": "claude-haiku-4-5-20251001",
+            "role": "assistant",
+            "type": "message",
+            "content": [
+              {
+                "type": "text",
+                "text": "Here's the complete Spring Merch inventory:**Spring Boot**- T-Shirt: 50 units @ $29.99- Socks: 100 units @ $12.99- Sticker: 200 units @ $4.99**Spring AI**- T-Shirt: 30 units @ $29.99- Socks: 75 units @ $12.99- Sticker: 150 units @ $4.99**Spring Security**- T-Shirt: 40 units @ $29.99- Socks: 80 units @ $12.99- Sticker: 175 units @ $4.99**Spring Cloud**- T-Shirt: 35 units @ $29.99- Socks: 90 units @ $12.99- Sticker: 160 units @ $4.99**Spring Data**- T-Shirt: 25 units @ $29.99- Socks: 60 units @ $12.99- Sticker: 140 units @ $4.99**Spring Batch**- T-Shirt: 20 units @ $29.99- Socks: 55 units @ $12.99- Sticker: 120 units @ $4.99**Spring for GraphQL**- T-Shirt: 15 units @ $29.99- Socks: 40 units @ $12.99- Sticker: 100 units @ $4.99**Spring Modulith**- T-Shirt: 10 units @ $29.99- Socks: 30 units @ $12.99- Sticker: 80 units @ $4.99**Spring Authorization Server**- T-Shirt: 18 units @ $29.99- Sticker: 90 units @ $4.99**Spring Session**- T-Shirt: 12 units @ $29.99- Sticker: 70 units @ $4.99**Spring Statemachine**- T-Shirt: 8 units @ $29.99- Sticker: 60 units @ $4.99Would you like to see visual product cards or add any items to your order? 😊"
+              }
+            ],
+            "stop_reason": "end_turn",
+            "stop_sequence": null,
+            "stop_details": null,
+            "usage": {
+              "input_tokens": 2155,
+              "output_tokens": 558
+            }
+          }
