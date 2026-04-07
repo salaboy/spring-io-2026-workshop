@@ -1,6 +1,9 @@
 package com.example.store.step03;
 
 import io.dapr.testcontainers.*;
+import io.github.microcks.testcontainers.MicrocksContainersEnsemble;
+import io.github.microcks.testcontainers.connection.KafkaConnection;
+
 import org.springframework.boot.micrometer.tracing.opentelemetry.autoconfigure.otlp.OtlpTracingConnectionDetails;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
@@ -47,16 +50,30 @@ public class ContainersConfig {
     }
 
     @Bean
+    MicrocksContainersEnsemble microcksEnsemble(Network network, KafkaContainer kafkaContainer) {
+        return new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.13.2-native")
+                .withAsyncFeature()
+                .withAccessToHost(true)
+                .withKafkaConnection(new KafkaConnection("kafka:19092"))
+                .withMainArtifacts("shipping-service.proto", "shipping-asyncapi-1.0.0.yaml")
+                .withSecondaryArtifacts("shipping-asyncapi-examples.yaml")
+                .withAsyncDependsOn(kafkaContainer)
+                .withMicrocksEnv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://jaeger:4317")
+                .withMicrocksEnv("OTEL_TRACES_EXPORTER", "otlp");
+    }
+
+    @Bean
     @ServiceConnection
     public DaprContainer daprContainer(Network daprNetwork,
-                                       KafkaContainer kafkaContainer){
+                                       KafkaContainer kafkaContainer,
+                                       MicrocksContainersEnsemble microcksEnsemble){
 
         Map<String, String> kafkaProperties = new HashMap<>();
         kafkaProperties.put("brokers", "kafka:19092");
         kafkaProperties.put("authType", "none");
 
         DockerImageName myDaprImage = DockerImageName.parse("daprio/daprd:"+DAPR_VERSION);
-        return new DaprContainer(myDaprImage)
+        DaprContainer daprContainer = new DaprContainer(myDaprImage)
                 .withAppName("store-dapr")
                 .withNetwork(daprNetwork)
                 .withComponent(new Component("pubsub", "pubsub.kafka", "v1", kafkaProperties))
@@ -74,7 +91,15 @@ public class ContainersConfig {
                 .withAppHealthCheckPath("/actuator/health")
                 .withAppChannelAddress("host.testcontainers.internal")
                 .dependsOn(kafkaContainer);
+
+        if (microcksEnsemble != null) {
+            daprContainer.withSubscription(new Subscription(
+                "shipping-events-subscription", "pubsub",
+                microcksEnsemble.getAsyncMinionContainer()
+                        .getKafkaMockTopic("Shipping Events", "1.0.0", "SEND sendShipmentEvents"),
+                "/api/events"));
+        }
+
+        return daprContainer;
     }
-
-
 }

@@ -1,0 +1,19 @@
+apiVersion: mocks.microcks.io/v1alpha1
+kind: APIExamples
+metadata:
+  name: Shipping Events
+  version: '1.0.0'
+operations:
+  'SEND sendShipmentEvents':
+    shipped:
+      eventMessage:
+        payload:
+          specversion: '1.0'
+          type: com.dapr.event.sent
+          source: shipping-service
+          id: 952d739f-5556-4772-8187-c39e18139a86
+          time: '2026-04-07T18:16:24Z'
+          data:
+            shipmentId: 'abc-xyz-123'
+            status: shipped
+            statusDate: '2026-04-07T18:16:27Z'
