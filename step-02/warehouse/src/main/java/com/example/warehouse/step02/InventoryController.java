@@ -19,30 +19,32 @@ public class InventoryController {
     private final Map<String, Product> inventory = new ConcurrentHashMap<>();
 
     public InventoryController() {
-        inventory.put("Spring Boot T-Shirt", new Product("Spring Boot T-Shirt", "Nice t-shirt featuring Spring Boot", 50));
-        inventory.put("Spring Boot Socks", new Product("Spring Boot Socks", "Comfortable socks with Spring Boot logo", 100));
-        inventory.put("Spring Boot Sticker", new Product("Spring Boot Sticker", "Stylish sticker with Spring Boot branding", 200));
+        inventory.put("Spring Boot T-Shirt", new Product("Spring Boot", "T-Shirt", "Nice t-shirt featuring Spring Boot", 50));
+        inventory.put("Spring Boot Socks", new Product("Spring Boot", "Socks", "Comfortable socks with Spring Boot logo", 100));
+        inventory.put("Spring Boot Sticker", new Product("Spring Boot", "Sticker", "Stylish sticker with Spring Boot branding", 200));
     }
 
     @GetMapping
     public InventoryResponse getInventory() {
         List<ProductResponse> products = inventory.values().stream()
-                .map(p -> new ProductResponse(p.productId(), p.description(), p.quantity()))
+                .map(p -> new ProductResponse(p.projectName(), p.productType(), p.description(), p.quantity()))
                 .toList();
         return new InventoryResponse(products);
     }
 
-    @GetMapping("/{productId}")
-    public ResponseEntity<ProductResponse> getProduct(@PathVariable String productId) {
+    @GetMapping("/{projectName}/{productType}")
+    public ResponseEntity<ProductResponse> getProduct(@PathVariable String projectName, @PathVariable String productType) {
+        String productId = projectName + " " + productType;
         Product product = inventory.get(productId);
         if (product == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(new ProductResponse(product.productId(), product.description(), product.quantity()));
+        return ResponseEntity.ok(new ProductResponse(product.projectName(), product.productType(), product.description(), product.quantity()));
     }
 
-    @PostMapping("/{productId}/acquire")
-    public ResponseEntity<Void> acquireProduct(@PathVariable String productId, @RequestBody AcquireRequest request) {
+    @PostMapping("/{projectName}/{productType}/acquire")
+    public ResponseEntity<Void> acquireProduct(@PathVariable String projectName, @PathVariable String productType, @RequestBody AcquireRequest request) {
+        String productId = projectName + " " + productType;
         Product product = inventory.get(productId);
         if (product == null) {
             return ResponseEntity.notFound().build();
@@ -51,11 +53,11 @@ public class InventoryController {
         if (newQuantity < 0) {
             return ResponseEntity.badRequest().build();
         }
-        inventory.put(productId, new Product(product.productId(), product.description(), newQuantity));
+        inventory.put(productId, new Product(product.projectName(), product.productType(), product.description(), newQuantity));
         return ResponseEntity.ok().build();
     }
 
-    private record Product(String productId, String description, int quantity) {
+    private record Product(String projectName, String productType, String description, int quantity) {
     }
 
     public record AcquireRequest(int quantity) {
@@ -64,6 +66,6 @@ public class InventoryController {
     public record InventoryResponse(List<ProductResponse> products) {
     }
 
-    public record ProductResponse(String productId, String description, int quantity) {
+    public record ProductResponse(String projectName, String productType, String description, int quantity) {
     }
 }

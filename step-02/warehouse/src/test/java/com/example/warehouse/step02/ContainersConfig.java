@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.boot.test.context.TestConfiguration;
 
 @TestConfiguration(proxyBeanMethods = false)
-public class ContainersConfiguration {
+public class ContainersConfig {
 
     @Bean
     MicrocksContainer microcks() {

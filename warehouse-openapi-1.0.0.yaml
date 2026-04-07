@@ -17,16 +17,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InventoryResponse'
-  /inventory/{productId}:
+  /inventory/{projectName}/{productType}:
     get:
       summary: Get the inventory for a specific product
       parameters:
-        - name: productId
+        - name: projectName
           in: path
           required: true
           schema:
             type: string
-          description: The ID of the product to retrieve the inventory for
+          description: The name of the project to retrieve the inventory for
+        - name: productType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The type of the product to retrieve the inventory for
       responses:
         '200':
           description: Product retrieved successfully
@@ -36,16 +42,22 @@ paths:
                 $ref: '#/components/schemas/ProductResponse'
         '404':
           description: Product not found
-  /inventory/{productId}/acquire:
+  /inventory/{projectName}/{productType}/acquire:
     post:
       summary: Acquire a specific quantity of a product from the inventory
       parameters:
-        - name: productId
+        - name: projectName
           in: path
           required: true
           schema:
             type: string
-          description: The ID of the product to acquire from the inventory
+          description: The name of the project to acquire the product from
+        - name: productType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The type of the product to acquire from the inventory
       requestBody:
         required: true
         content:
@@ -75,9 +87,12 @@ components:
     ProductResponse:
       type: object
       properties:
-        productId:
+        projectName:
           type: string
-          description: The ID of the product
+          description: The name of the project
+        productType:
+          type: string
+          description: The type of the product
         description:  
           type: string
           description: The description of the product

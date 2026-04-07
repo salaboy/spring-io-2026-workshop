@@ -18,17 +18,17 @@ public class WarehouseClient {
                 .body(InventoryResponse.class);
     }
 
-    public ProductResponse getProduct(String productId) {
+    public ProductResponse getProduct(String projectName, String productType) {
         return restClient.get()
-                .uri("/inventory/{productId}", productId)
+                .uri("/inventory/{projectName}/{productType}", projectName, productType)
                 .retrieve()
                 .body(ProductResponse.class);
     }
 
-    public boolean acquireProduct(String productId, int quantity) {
+    public boolean acquireProduct(String projectName, String productType, int quantity) {
         AcquireRequest request = new AcquireRequest(quantity);
         restClient.post()
-            .uri("/inventory/{productId}/acquire", productId)
+            .uri("/inventory/{projectName}/{productType}/acquire", projectName, productType)
             .body(request)
             .retrieve()
             .toBodilessEntity();

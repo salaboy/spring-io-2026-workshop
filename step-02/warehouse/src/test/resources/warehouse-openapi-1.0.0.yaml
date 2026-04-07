@@ -21,32 +21,48 @@ paths:
                 all products:
                   value:
                     products:
-                      - productId: "Spring Boot T-Shirt"
+                      - projectName: "Spring Boot"
+                        productType: "T-Shirt"
                         description: "Nice t-shirt featuring Spring Boot"
                         quantity: 50
-                      - productId: "Spring Boot Socks"
+                      - projectName: "Spring Boot"
+                        productType: "Socks"
                         description: "Comfortable socks with Spring Boot logo"
                         quantity: 100
-                      - productId: "Spring Boot Sticker"
+                      - projectName: "Spring Boot"
+                        productType: "Sticker"
                         description: "Stylish sticker with Spring Boot branding"
                         quantity: 200
-  /inventory/{productId}:
+  /inventory/{projectName}/{productType}:
     get:
       summary: Get the inventory for a specific product
       parameters:
-        - name: productId
+        - name: projectName
           in: path
           required: true
           schema:
             type: string
-          description: The ID of the product to retrieve the inventory for
+          description: The name of the project to retrieve the inventory for
           examples:
             Spring Boot T-Shirt:
-              value: "Spring Boot T-Shirt"
+              value: "Spring Boot"
             Spring Boot Socks:
-              value: "Spring Boot Socks"
+              value: "Spring Boot"
             Spring Boot Sticker:
-              value: "Spring Boot Sticker"
+              value: "Spring Boot"
+        - name: productType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The type of the product to retrieve the inventory for
+          examples:
+            Spring Boot T-Shirt:
+              value: "T-Shirt"
+            Spring Boot Socks:
+              value: "Socks"
+            Spring Boot Sticker:
+              value: "Sticker"
       responses:
         '200':
           description: Product retrieved successfully
@@ -57,34 +73,46 @@ paths:
               examples:
                 Spring Boot T-Shirt:
                   value:
-                    productId: "Spring Boot T-Shirt"
+                    projectName: "Spring Boot"
+                    productType: "T-Shirt"
                     description: "Nice t-shirt featuring Spring Boot"
                     quantity: 50
                 Spring Boot Socks:
                   value:
-                    productId: "Spring Boot Socks"
+                    projectName: "Spring Boot"
+                    productType: "Socks"
                     description: "Comfortable socks with Spring Boot logo"
                     quantity: 100
                 Spring Boot Sticker:
                   value:
-                    productId: "Spring Boot Sticker"
+                    projectName: "Spring Boot"
+                    productType: "Sticker"
                     description: "Stylish sticker with Spring Boot branding"
                     quantity: 200
         '404':
           description: Product not found
-  /inventory/{productId}/acquire:
+  /inventory/{projectName}/{productType}/acquire:
     post:
       summary: Acquire a specific quantity of a product from the inventory
       parameters:
-        - name: productId
+        - name: projectName
           in: path
           required: true
           schema:
             type: string
-          description: The ID of the product to acquire from the inventory
+          description: The name of the project to acquire the product from
           examples:
             Spring Boot T-Shirt:
-              value: "Spring Boot T-Shirt"
+              value: "Spring Boot"
+        - name: productType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The type of the product to acquire from the inventory
+          examples:
+            Spring Boot T-Shirt:
+              value: "T-Shirt"
       requestBody:
         required: true
         content:
@@ -120,9 +148,12 @@ components:
     ProductResponse:
       type: object
       properties:
-        productId:
+        projectName:
           type: string
-          description: The ID of the product
+          description: The name of the project
+        productType:
+          type: string
+          description: The type of the product
         description:  
           type: string
           description: The description of the product

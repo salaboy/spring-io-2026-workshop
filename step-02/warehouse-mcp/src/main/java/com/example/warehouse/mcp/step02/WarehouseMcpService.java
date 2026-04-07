@@ -28,15 +28,17 @@ public class WarehouseMcpService {
     @McpTool(
         name= "get_product",
         description = "Get details of a specific product in the warehouse")
-    public ProductResponse getProduct(@McpToolParam(description = "ID of the product") String productId) {
-        return warehouseClient.getProduct(productId);
+    public ProductResponse getProduct(@McpToolParam(description = "ID of the product") String projectName, 
+                                      @McpToolParam(description = "Type of the product") String productType) {
+        return warehouseClient.getProduct(projectName, productType);
     }
 
     @McpTool(
         name= "acquire_product",
         description = "Acquire a specific quantity of a product from the warehouse")
-    public boolean acquireProduct(@McpToolParam(description = "ID of the product") String productId,
+    public boolean acquireProduct(@McpToolParam(description = "ID of the product") String projectName,
+                                  @McpToolParam(description = "Type of the product") String productType,
                                   @McpToolParam(description = "Quantity to acquire") int quantity) {
-        return warehouseClient.acquireProduct(productId, quantity);
+        return warehouseClient.acquireProduct(projectName, productType, quantity);
     }
 }
