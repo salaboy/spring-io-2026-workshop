@@ -93,9 +93,13 @@ components:
         productType:
           type: string
           description: The type of the product
-        description:  
-          type: string
-          description: The description of the product
         quantity:
           type: integer
           description: The quantity of the product in stock 
+        price:
+          type: number
+          format: double
+          description: The price of the product
+        logoUrl:
+          type: string
+          description: The URL of the product's logo

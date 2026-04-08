@@ -17,48 +17,44 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InventoryController {
 
     private final Map<String, Product> inventory = new ConcurrentHashMap<>();
-    //    static final List<MerchItem> INVENTORY = List.of(
-//            new MerchItem("Spring Boot",       "T-Shirt", 50,  29.99, "https://spring.io/img/projects/spring-boot.svg"),
-//            new MerchItem("Spring Boot",       "Socks",  100,  12.99, "https://spring.io/img/projects/spring-boot.svg"),
-//            new MerchItem("Spring Boot",       "Sticker", 200,  4.99, "https://spring.io/img/projects/spring-boot.svg"),
-//            new MerchItem("Spring AI",         "T-Shirt",  30, 29.99, "https://spring.io/img/projects/spring-ai.svg"),
-//            new MerchItem("Spring AI",         "Socks",    75, 12.99, "https://spring.io/img/projects/spring-ai.svg"),
-//            new MerchItem("Spring AI",         "Sticker", 150,  4.99, "https://spring.io/img/projects/spring-ai.svg"),
-//            new MerchItem("Spring Security",   "T-Shirt",  40, 29.99, "https://spring.io/img/projects/spring-security.svg"),
-//            new MerchItem("Spring Security",   "Socks",    80, 12.99, "https://spring.io/img/projects/spring-security.svg"),
-//            new MerchItem("Spring Security",   "Sticker", 175,  4.99, "https://spring.io/img/projects/spring-security.svg"),
-//            new MerchItem("Spring Cloud",      "T-Shirt",  35, 29.99, "https://spring.io/img/projects/spring-cloud.svg"),
-//            new MerchItem("Spring Cloud",      "Socks",    90, 12.99, "https://spring.io/img/projects/spring-cloud.svg"),
-//            new MerchItem("Spring Cloud",      "Sticker", 160,  4.99, "https://spring.io/img/projects/spring-cloud.svg"),
-//            new MerchItem("Spring Data",       "T-Shirt",  25, 29.99, "https://spring.io/img/projects/spring-data.svg"),
-//            new MerchItem("Spring Data",       "Socks",    60, 12.99, "https://spring.io/img/projects/spring-data.svg"),
-//            new MerchItem("Spring Data",       "Sticker", 140,  4.99, "https://spring.io/img/projects/spring-data.svg"),
-//            new MerchItem("Spring Batch",      "T-Shirt",  20, 29.99, "https://spring.io/img/projects/spring-batch.svg"),
-//            new MerchItem("Spring Batch",      "Socks",    55, 12.99, "https://spring.io/img/projects/spring-batch.svg"),
-//            new MerchItem("Spring Batch",      "Sticker", 120,  4.99, "https://spring.io/img/projects/spring-batch.svg"),
-//            new MerchItem("Spring for GraphQL","T-Shirt",  15, 29.99, "https://spring.io/img/projects/spring-graphql.svg"),
-//            new MerchItem("Spring for GraphQL","Socks",    40, 12.99, "https://spring.io/img/projects/spring-graphql.svg"),
-//            new MerchItem("Spring for GraphQL","Sticker", 100,  4.99, "https://spring.io/img/projects/spring-graphql.svg"),
-//            new MerchItem("Spring Modulith",   "T-Shirt",  10, 29.99, "https://spring.io/img/projects/spring-modulith.svg"),
-//            new MerchItem("Spring Modulith",   "Socks",    30, 12.99, "https://spring.io/img/projects/spring-modulith.svg"),
-//            new MerchItem("Spring Modulith",   "Sticker",  80,  4.99, "https://spring.io/img/projects/spring-modulith.svg"),
-//            new MerchItem("Spring Authorization Server", "T-Shirt",  18, 29.99, "https://spring.io/img/projects/spring-authorization-server.svg"),
-//            new MerchItem("Spring Authorization Server", "Sticker",  90,  4.99, "https://spring.io/img/projects/spring-authorization-server.svg"),
-//            new MerchItem("Spring Session",    "T-Shirt",  12, 29.99, "https://spring.io/img/projects/logo-session.png"),
-//            new MerchItem("Spring Session",    "Sticker",  70,  4.99, "https://spring.io/img/projects/logo-session.png"),
-//            new MerchItem("Spring Statemachine","T-Shirt",  8, 29.99, "https://spring.io/img/projects/spring-statemachine.svg"),
-//            new MerchItem("Spring Statemachine","Sticker",  60,  4.99, "https://spring.io/img/projects/spring-statemachine.svg")
-//    );
+
     public InventoryController() {
-        inventory.put("Spring Boot T-Shirt", new Product("Spring Boot", "T-Shirt", "Nice t-shirt featuring Spring Boot", 50));
-        inventory.put("Spring Boot Socks", new Product("Spring Boot", "Socks", "Comfortable socks with Spring Boot logo", 100));
-        inventory.put("Spring Boot Sticker", new Product("Spring Boot", "Sticker", "Stylish sticker with Spring Boot branding", 200));
+        inventory.put("Spring Boot T-Shirt", new Product("Spring Boot", "T-Shirt", 50, 29.99, "https://spring.io/img/projects/spring-boot.svg"));
+        inventory.put("Spring Boot Socks", new Product("Spring Boot", "Socks", 100, 12.99, "https://spring.io/img/projects/spring-boot.svg"));
+        inventory.put("Spring Boot Sticker", new Product("Spring Boot", "Sticker", 200, 4.99, "https://spring.io/img/projects/spring-boot.svg"));
+        inventory.put("Spring AI T-Shirt", new Product("Spring AI", "T-Shirt", 30, 29.99, "https://spring.io/img/projects/spring-ai.svg"));
+        inventory.put("Spring AI Socks", new Product("Spring AI", "Socks", 75, 12.99, "https://spring.io/img/projects/spring-ai.svg"));
+        inventory.put("Spring AI Sticker", new Product("Spring AI", "Sticker", 150, 4.99, "https://spring.io/img/projects/spring-ai.svg"));
+        inventory.put("Spring Security T-Shirt", new Product("Spring Security", "T-Shirt", 40, 29.99, "https://spring.io/img/projects/spring-security.svg"));
+        inventory.put("Spring Security Socks", new Product("Spring Security", "Socks", 80, 12.99, "https://spring.io/img/projects/spring-security.svg"));
+        inventory.put("Spring Security Sticker", new Product("Spring Security", "Sticker", 175, 4.99, "https://spring.io/img/projects/spring-security.svg"));
+        inventory.put("Spring Cloud T-Shirt", new Product("Spring Cloud", "T-Shirt", 35, 29.99, "https://spring.io/img/projects/spring-cloud.svg"));
+        inventory.put("Spring Cloud Socks", new Product("Spring Cloud", "Socks", 90, 12.99, "https://spring.io/img/projects/spring-cloud.svg"));
+        inventory.put("Spring Cloud Sticker", new Product("Spring Cloud", "Sticker", 160, 4.99, "https://spring.io/img/projects/spring-cloud.svg"));
+        inventory.put("Spring Data T-Shirt", new Product("Spring Data", "T-Shirt", 25, 29.99, "https://spring.io/img/projects/spring-data.svg"));
+        inventory.put("Spring Data Socks", new Product("Spring Data", "Socks", 60, 12.99, "https:// spring.io/img/projects/spring-data.svg"));
+        inventory.put("Spring Data Sticker", new Product("Spring Data", "Sticker", 140, 4.99, "https://spring.io/img/projects/spring-data.svg"));
+        inventory.put("Spring Batch T-Shirt", new Product("Spring Batch", "T-Shirt", 20, 29.99, "https://spring.io/img/projects/spring-batch.svg"));
+        inventory.put("Spring Batch Socks", new Product("Spring Batch", "Socks", 55, 12.99, "https://spring.io/img/projects/spring-batch.svg"));
+        inventory.put("Spring Batch Sticker", new Product("Spring Batch", "Sticker", 120, 4.99, "https://spring.io/img/projects/spring-batch.svg"));
+        inventory.put("Spring for GraphQL T-Shirt", new Product("Spring for GraphQL", "T-Shirt", 15, 29.99, "https://spring.io/img/projects/spring-graphql.svg"));
+        inventory.put("Spring for GraphQL Socks", new Product("Spring for GraphQL", "Socks", 40, 12.99, "https://spring.io/img/projects/spring-graphql.svg"));
+        inventory.put("Spring for GraphQL Sticker", new Product("Spring for GraphQL", "Sticker", 100, 4.99, "https://spring.io/img/projects/spring-graphql.svg"));
+        inventory.put("Spring Modulith T-Shirt", new Product("Spring Modulith", "T-Shirt", 10, 29.99, "https://spring.io/img/projects/spring-modulith.svg"));
+        inventory.put("Spring Modulith Socks", new Product("Spring Modulith", "Socks", 30, 12.99, "https://spring.io/img/projects/spring-modulith.svg"));
+        inventory.put("Spring Modulith Sticker", new Product("Spring Modulith", "Sticker", 80, 4.99, "https://spring.io/img/projects/spring-modulith.svg"));
+        inventory.put("Spring Authorization Server T-Shirt", new Product("Spring Authorization Server", "T-Shirt", 18, 29.99, "https://spring.io/img/projects/spring-authorization-server.svg"));
+        inventory.put("Spring Authorization Server Sticker", new Product("Spring Authorization Server", "Sticker", 90, 4.99, "https://spring.io/img/projects/spring-authorization-server.svg"));
+        inventory.put("Spring Session T-Shirt", new Product("Spring Session", "T-Shirt", 12, 29.99, "https://spring.io/img/projects/logo-session.png"));
+        inventory.put("Spring Session Sticker", new Product("Spring Session", "Sticker", 70, 4.99, "https://spring.io/img/projects/logo-session.png"));
+        inventory.put("Spring Statemachine T-Shirt", new Product("Spring Statemachine", "T-Shirt", 8, 29.99, "https://spring.io/img/projects/spring-statemachine.svg"));
+        inventory.put("Spring Statemachine Sticker", new Product("Spring Statemachine", "Sticker", 60, 4.99, "https://spring.io/img/projects/spring-statemachine.svg"));
     }
 
     @GetMapping
     public InventoryResponse getInventory() {
         List<ProductResponse> products = inventory.values().stream()
-                .map(p -> new ProductResponse(p.projectName(), p.productType(), p.description(), p.quantity()))
+                .map(p -> new ProductResponse(p.projectName(), p.productType(), p.quantity(), p.price(), p.logoUrl()))
                 .toList();
         return new InventoryResponse(products);
     }
@@ -70,7 +66,7 @@ public class InventoryController {
         if (product == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(new ProductResponse(product.projectName(), product.productType(), product.description(), product.quantity()));
+        return ResponseEntity.ok(new ProductResponse(product.projectName(), product.productType(), product.quantity(), product.price(), product.logoUrl()));
     }
 
     @PostMapping("/{projectName}/{productType}/acquire")
@@ -84,11 +80,11 @@ public class InventoryController {
         if (newQuantity < 0) {
             return ResponseEntity.badRequest().build();
         }
-        inventory.put(productId, new Product(product.projectName(), product.productType(), product.description(), newQuantity));
+        inventory.put(productId, new Product(product.projectName(), product.productType(), newQuantity, product.price(), product.logoUrl()));
         return ResponseEntity.ok().build();
     }
 
-    private record Product(String projectName, String productType, String description, int quantity) {
+    private record Product(String projectName, String productType, int quantity, double price, String logoUrl) {
     }
 
     public record AcquireRequest(int quantity) {
@@ -97,6 +93,6 @@ public class InventoryController {
     public record InventoryResponse(List<ProductResponse> products) {
     }
 
-    public record ProductResponse(String projectName, String productType, String description, int quantity) {
+    public record ProductResponse(String projectName, String productType, int quantity, double price, String logoUrl) {
     }
 }

@@ -23,16 +23,19 @@ paths:
                     products:
                       - projectName: "Spring Boot"
                         productType: "T-Shirt"
-                        description: "Nice t-shirt featuring Spring Boot"
                         quantity: 50
+                        price: 19.99
+                        logoUrl: "https://example.com/spring-boot-tshirt.png"
                       - projectName: "Spring Boot"
                         productType: "Socks"
-                        description: "Comfortable socks with Spring Boot logo"
                         quantity: 100
+                        price: 12.99
+                        logoUrl: "https://example.com/spring-boot-socks.png"
                       - projectName: "Spring Boot"
                         productType: "Sticker"
-                        description: "Stylish sticker with Spring Boot branding"
                         quantity: 200
+                        price: 4.99
+                        logoUrl: "https://example.com/spring-boot-sticker.png"
   /inventory/{projectName}/{productType}:
     get:
       summary: Get the inventory for a specific product
@@ -75,20 +78,23 @@ paths:
                   value:
                     projectName: "Spring Boot"
                     productType: "T-Shirt"
-                    description: "Nice t-shirt featuring Spring Boot"
                     quantity: 50
+                    price: 19.99
+                    logoUrl: "https://example.com/spring-boot-tshirt.png"
                 Spring Boot Socks:
                   value:
                     projectName: "Spring Boot"
                     productType: "Socks"
-                    description: "Comfortable socks with Spring Boot logo"
                     quantity: 100
+                    price: 12.99
+                    logoUrl: "https://example.com/spring-boot-socks.png"
                 Spring Boot Sticker:
                   value:
                     projectName: "Spring Boot"
                     productType: "Sticker"
-                    description: "Stylish sticker with Spring Boot branding"
                     quantity: 200
+                    price: 4.99
+                    logoUrl: "https://example.com/spring-boot-sticker.png"
         '404':
           description: Product not found
   /inventory/{projectName}/{productType}/acquire:
@@ -154,9 +160,13 @@ components:
         productType:
           type: string
           description: The type of the product
-        description:  
-          type: string
-          description: The description of the product
         quantity:
           type: integer
           description: The quantity of the product in stock 
+        price:
+          type: number
+          format: double
+          description: The price of the product
+        logoUrl:
+          type: string
+          description: The URL of the product's logo
