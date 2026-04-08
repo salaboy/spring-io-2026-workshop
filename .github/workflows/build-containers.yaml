@@ -1,0 +1,129 @@
+name: build-containers
+on:
+  push:
+    paths-ignore:
+      - '.gitignore'
+      - 'LICENSE'
+      - '*.md'
+permissions: read-all
+
+jobs:
+  build-warehouse-images:
+    if: github.repository_owner == 'salaboy'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write # needed for signing the images with GitHub OIDC Token
+
+    steps:
+      - name: Get current date
+        id: date
+        #run: echo "::set-output name=date::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "date=$(date +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+
+      - name: Checkout Code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.21
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v3.7.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
+      - name: Login to GitHub container registry and setup multi-arch builder
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin ghcr.io
+          BUILDER=buildx-multi-arch
+          docker buildx inspect $BUILDER || docker buildx create --name=$BUILDER --driver=docker-container --driver-opt=network=host
+
+      - name: Build and push container image for step-02 warehouse
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
+        with:
+          context: ${{github.workspace}}/step-02/warehouse
+          sbom: true
+          push: true
+          provenance: mode=max
+          platforms: linux/amd64,linux/arm64
+          builder: buildx-multi-arch
+          file: step-02/warehouse/src/main/docker/Dockerfile
+          labels: |
+            org.opencontainers.image.revision=${GITHUB_SHA}
+            org.opencontainers.image.created=${{ steps.date.outputs.date }}
+          tags: ghcr.io/salaboy/springio-warehouse:step-02
+
+      - name: Build and push container image for step-02 warehouse-mcp
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
+        with:
+          context: ${{github.workspace}}/step-02/warehouse-mcp
+          sbom: true
+          push: true
+          provenance: mode=max
+          platforms: linux/amd64,linux/arm64
+          builder: buildx-multi-arch
+          file: step-02/warehouse-mcp/src/main/docker/Dockerfile
+          labels: |
+            org.opencontainers.image.revision=${GITHUB_SHA}
+            org.opencontainers.image.created=${{ steps.date.outputs.date }}
+          tags: ghcr.io/salaboy/springio-warehouse-mcp:step-02
+
+  build-shipping-images:
+    if: github.repository_owner == 'salaboy'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write # needed for signing the images with GitHub OIDC Token
+
+    steps:
+      - name: Get current date
+        id: date
+        #run: echo "::set-output name=date::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "date=$(date +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+
+      - name: Checkout Code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.21
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v3.7.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
+      - name: Login to GitHub container registry and setup multi-arch builder
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin ghcr.io
+          BUILDER=buildx-multi-arch
+          docker buildx inspect $BUILDER || docker buildx create --name=$BUILDER --driver=docker-container --driver-opt=network=host
+
+      - name: Build and push container image for step-03 shipping
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
+        with:
+          context: ${{github.workspace}}/step-03/shipping
+          sbom: true
+          push: true
+          provenance: mode=max
+          platforms: linux/amd64,linux/arm64
+          builder: buildx-multi-arch
+          file: step-04/shipping/Dockerfile
+          labels: |
+            org.opencontainers.image.revision=${GITHUB_SHA}
+            org.opencontainers.image.created=${{ steps.date.outputs.date }}
+          tags: ghcr.io/salaboy/springio-shipping:step-03
+
+      - name: Build and push container image for step-04 shipping
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
+        with:
+          context: ${{github.workspace}}/step-04/shipping
+          sbom: true
+          push: true
+          provenance: mode=max
+          platforms: linux/amd64,linux/arm64
+          builder: buildx-multi-arch
+          file: step-04/shipping/Dockerfile
+          labels: |
+            org.opencontainers.image.revision=${GITHUB_SHA}
+            org.opencontainers.image.created=${{ steps.date.outputs.date }}
+          tags: ghcr.io/salaboy/springio-shipping:step-04
+
+    

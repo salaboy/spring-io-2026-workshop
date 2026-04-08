@@ -1,0 +1,2 @@
+# Ignore Dapr etcd data directory
+dapr-etcd-data
