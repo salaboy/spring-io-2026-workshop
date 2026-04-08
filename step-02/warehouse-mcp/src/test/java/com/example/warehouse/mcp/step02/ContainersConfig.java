@@ -1,4 +1,4 @@
-package com.example.store.step02;
+package com.example.warehouse.mcp.step02;
 
 import org.springframework.boot.micrometer.tracing.opentelemetry.autoconfigure.otlp.OtlpTracingConnectionDetails;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -13,6 +13,24 @@ import java.util.List;
 
 @TestConfiguration(proxyBeanMethods = false)
 public class ContainersConfig {
+
+    @Bean(name="jaegerContainer")
+    GenericContainer<?> jaegerContainer(Environment env, Network network) {
+        boolean reuse = env.getProperty("reuse", Boolean.class, false);
+        System.out.println(">> Reusing Jaeger:" + reuse);
+        return new GenericContainer<>(DockerImageName.parse("jaegertracing/jaeger"))
+                .withNetwork(network)
+                .withReuse(reuse)
+                .withExposedPorts(16686, 4317, 4318)
+                .withNetworkAliases("jaeger");
+    }
+
+    @Bean
+    OtlpTracingConnectionDetails otlpTracingConnectionDetails(GenericContainer<?> jaegerContainer) {
+        return transport -> "http://" + jaegerContainer.getHost() + ":"
+                + jaegerContainer.getMappedPort(4318) + "/v1/traces";
+    }
+
 
     @Bean
     public Network getDaprNetwork(Environment env) {
@@ -42,23 +60,6 @@ public class ContainersConfig {
         } else {
             return Network.newNetwork();
         }
-    }
-
-    @Bean(name="jaegerContainer")
-    GenericContainer<?> jaegerContainer(Environment env, Network network) {
-        boolean reuse = env.getProperty("reuse", Boolean.class, false);
-        System.out.println(">> Reusing Jaeger:" + reuse);
-        return new GenericContainer<>(DockerImageName.parse("jaegertracing/jaeger"))
-                .withNetwork(network)
-                .withReuse(reuse)
-                .withExposedPorts(16686, 4317, 4318)
-                .withNetworkAliases("jaeger");
-    }
-
-    @Bean
-    OtlpTracingConnectionDetails otlpTracingConnectionDetails(GenericContainer<?> jaegerContainer) {
-        return transport -> "http://" + jaegerContainer.getHost() + ":"
-                + jaegerContainer.getMappedPort(4318) + "/v1/traces";
     }
 
 }

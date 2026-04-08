@@ -19,7 +19,9 @@ import tools.jackson.databind.ObjectMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"microcks.enabled=true"},
+        classes = TestWarehouseApplication.class)
 @Import(ContainersConfig.class)
 class WarehouseAPIContractTests {
     

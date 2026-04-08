@@ -5,6 +5,8 @@ import org.springframework.boot.micrometer.tracing.opentelemetry.autoconfigure.o
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.kafka.KafkaContainer;
@@ -12,6 +14,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.dapr.testcontainers.DaprContainerConstants.DAPR_VERSION;
@@ -34,10 +37,34 @@ public class ContainersConfig {
     private Component stateStoreComponent = new Component("kvstore",
             "state.postgresql", "v2", postgreSQLDetails);
 
-
     @Bean
-    Network network() {
-        return Network.newNetwork();
+    public Network getDaprNetwork(Environment env) {
+        boolean reuse = env.getProperty("reuse", Boolean.class, false);
+        if (reuse) {
+            Network defaultDaprNetwork = new Network() {
+                @Override
+                public String getId() {
+                    return "my-network";
+                }
+
+                @Override
+                public void close() {
+
+                }
+
+            };
+
+            List<com.github.dockerjava.api.model.Network> networks = DockerClientFactory.instance().client().listNetworksCmd()
+                    .withNameFilter("my-network").exec();
+            if (networks.isEmpty()) {
+                Network.builder().createNetworkCmdModifier(cmd -> cmd.withName("my-network")).build().getId();
+                return defaultDaprNetwork;
+            } else {
+                return defaultDaprNetwork;
+            }
+        } else {
+            return Network.newNetwork();
+        }
     }
 
     @Bean(name="jaegerContainer")

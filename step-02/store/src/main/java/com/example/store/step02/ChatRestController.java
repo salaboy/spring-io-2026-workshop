@@ -4,6 +4,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -38,8 +39,11 @@ public class ChatRestController {
 
     private final ChatClient chatClient;
     private final InMemoryChatMemoryRepository memoryRepository = new InMemoryChatMemoryRepository();
-
-    public ChatRestController(ChatClient.Builder chatClientBuilder, ChatController inventoryTools) {
+    private final ToolCallbackProvider mcpTools;
+    public ChatRestController(ChatClient.Builder chatClientBuilder,
+                              ToolCallbackProvider mcpTools,
+                              ChatController inventoryTools) {
+        this.mcpTools = mcpTools;
         this.chatClient = chatClientBuilder
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultTools(inventoryTools)
@@ -57,6 +61,7 @@ public class ChatRestController {
 
         String response = chatClient.prompt()
                 .advisors(advisor)
+                .toolCallbacks(mcpTools)
                 .user(request.message())
                 .call()
                 .content();
@@ -75,6 +80,7 @@ public class ChatRestController {
 
         return chatClient.prompt()
                 .advisors(advisor)
+                .toolCallbacks(mcpTools)
                 .user(request.message())
                 .stream()
                 .content();
