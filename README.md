@@ -4,6 +4,12 @@ Building Testable, Durable and Observable Spring AI applications
 
 ## Introduction and prerequisites
 
+## Prequisites
+
+- Java 21
+- Node (needs npm)
+- Docker
+
 ## Workshop steps
 
 ### Step 1: Spring AI application
@@ -28,4 +34,5 @@ Building Testable, Durable and Observable Spring AI applications
 ### Step 5: Running your apps in Kubernetes
 
 - These services are ready to run on Kubernetes as they were built using cloud native tools
+
 
