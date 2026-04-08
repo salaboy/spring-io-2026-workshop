@@ -1,9 +1,13 @@
 package com.example.warehouse.mcp.step02;
 
+import io.github.microcks.testcontainers.MicrocksContainer;
+
 import org.springframework.boot.micrometer.tracing.opentelemetry.autoconfigure.otlp.OtlpTracingConnectionDetails;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
+import org.springframework.lang.Nullable;
+import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
@@ -31,6 +35,23 @@ public class ContainersConfig {
                 + jaegerContainer.getMappedPort(4318) + "/v1/traces";
     }
 
+    @Bean
+    MicrocksContainer microcks(Network network) {
+        return new MicrocksContainer("quay.io/microcks/microcks-uber:1.13.2-native")
+            .withNetwork(network)
+            .withMainArtifacts("warehouse-openapi-1.0.0.yaml")
+            .withEnv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://jaeger:4317")
+            .withEnv("OTEL_TRACES_EXPORTER", "otlp");
+    }
+
+    @Bean
+    public DynamicPropertyRegistrar properties(@Nullable MicrocksContainer microcks) {
+        return (registrar) -> {
+            if (microcks != null) {
+                registrar.add("application.warehouse-base-url", () -> microcks.getRestMockEndpoint("Warehouse API", "1.0.0"));
+            }
+        };
+    }
 
     @Bean
     public Network getDaprNetwork(Environment env) {
