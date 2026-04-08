@@ -16,7 +16,7 @@ public class McpServerWarehouseApplication {
     }
 
     @Bean("warehouseRestClient")
-    RestClient warehouseRestClient(ApplicationProperties properties) {
-		return RestClient.create(properties.warehouseBaseUrl());
+    RestClient warehouseRestClient(RestClient.Builder builder, ApplicationProperties properties) {
+		return builder.baseUrl(properties.warehouseBaseUrl()).build();
 	}
 }

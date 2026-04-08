@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class WarehouseMcpService {
 
-    com.example.warehouse.mcp.step02.client.WarehouseClient warehouseClient;
+    WarehouseClient warehouseClient;
 
     public WarehouseMcpService(WarehouseClient warehouseClient) {
         this.warehouseClient = warehouseClient;
