@@ -1,0 +1,72 @@
+services:
+  postgres:
+    image: library/postgres:17-alpine
+    container_name: reshapr-postgres
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "54321:5432"
+    volumes:
+      - "~/tmp/reshapr-data:/var/lib/postgresql/data/pgdata"
+    environment:
+      - POSTGRES_USER=reshapr
+      - POSTGRES_PASSWORD=reshapr
+      - POSTGRES_DB=reshapr
+      - PGDATA=/var/lib/postgresql/data/pgdata
+
+  control-plane:
+    image: registry.reshapr.io/reshapr/reshapr-ctrl:nightly
+    container_name: reshapr-control-plane
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - postgres
+    restart: on-failure
+    ports:
+      - "5555:5555"
+    environment:
+      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://postgres:5432/reshapr
+      - QUARKUS_DATASOURCE_USERNAME=reshapr
+      - QUARKUS_DATASOURCE_PASSWORD=reshapr
+      - RESHAPR_ADMIN_NAME=admin
+      - RESHAPR_ADMIN_PASSWORD=password
+      - RESHAPR_ADMIN_EMAIL=reshapr@example.com
+      - RESHAPR_DEFAULT_GATEWAY_TOKENS=my-super-secret-token-xyz
+      # Enable debug logging for the control plane to help with troubleshooting
+      #- QUARKUS_LOG_CONSOLE_LEVEL=DEBUG
+      #- QUARKUS_LOG_CATEGORY__IO_RESHAPR_CTRL__LEVEL=DEBUG
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5555/q/health/ready" ]
+      start_period: 3s
+      interval: 2s
+      timeout: 2s
+      retries: 3
+
+  gateway-01:
+    image: registry.reshapr.io/reshapr/reshapr-proxy:nightly
+    container_name: reshapr-gateway-01
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      control-plane:
+        condition: service_healthy
+    restart: on-failure
+    ports:
+      - "7777:7777"
+    environment:
+      - RESHAPR_CTRL_HOST=control-plane
+      - RESHAPR_CTRL_PORT=5555
+      # Note: this token must match one of the tokens defined in RESHAPR_DEFAULT_GATEWAY_TOKENS in the control-plane
+      # with the prefix "reshapr-" (e.g. the default organization this gateway is attached)
+      - RESHAPR_CTRL_TOKEN=reshapr-my-super-secret-token-xyz
+      # Enable debug logging for the proxy to help with troubleshooting
+      #- QUARKUS_LOG_CONSOLE_LEVEL=DEBUG
+      #- QUARKUS_LOG_CATEGORY__IO_RESHAPR_PROXY__LEVEL=DEBUG
+      # Configure the connectiong to the OpenTelemetry Collector running on the host machine
+      - QUARKUS_OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:53867
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:7777/q/health/ready" ]
+      start_period: 3s
+      interval: 2s
+      timeout: 2s
+      retries: 3

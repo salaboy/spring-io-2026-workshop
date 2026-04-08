@@ -11,7 +11,7 @@ services:
       - placement
       
   dapr:
-    image: "daprio/daprd:edge"
+    image: "daprio/daprd:1.17.0"
     command: [
       "./daprd",
       "--app-id", "shipping",
