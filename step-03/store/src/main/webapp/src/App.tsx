@@ -338,7 +338,7 @@ function MockEventButton({ theme, counterRef }: { theme: ThemePalette; counterRe
       const res = await fetch('/api/events/mock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'SHIPMENT', content: `Shipment event #${count}` }),
+        body: JSON.stringify({ shipmentId: `SHIPMENT-#${count}`, status: `shipped`, statusDate: new Date().toISOString() }),
       })
       setStatus(res.ok ? 'ok' : 'error')
     } catch {
@@ -487,8 +487,8 @@ export default function App() {
     const ws = new WebSocket(`${protocol}//${window.location.host}/ws/events`)
     ws.onmessage = (e) => {
       try {
-        const event = JSON.parse(e.data) as { type: string; content: string }
-        toast(event.content)
+        const event = JSON.parse(e.data) as { shipmentId: string; status: string; statusDate: string }
+        toast(`Shipment ${event.shipmentId} is ${event.status} as of ${event.statusDate}`, { icon: '📦' })
       } catch { /* ignore malformed messages */ }
     }
     return () => ws.close()

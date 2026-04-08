@@ -78,15 +78,15 @@ public class ContainersConfig {
                 .withNetwork(daprNetwork)
                 .withComponent(new Component("pubsub", "pubsub.kafka", "v1", kafkaProperties))
                 .withSubscription(new Subscription(
-                        "shipping-events-subscription",
+                        "mock-shipping-events-subscription",
                         "pubsub", "pubsubTopic", "/api/events"))
 
                 .withConfiguration(new Configuration("daprConfig",
                         new TracingConfigurationSettings("1", true,
                                 new OtelTracingConfigurationSettings("jaeger:4318", false, "http"), null), null))
-  //Uncomment if you want to troubleshoot Dapr related problems
-//            .withDaprLogLevel(DaprLogLevel.DEBUG)
-//            .withLogConsumer(outputFrame -> System.out.println(outputFrame.getUtf8String()))
+                // Uncomment if you want to troubleshoot Dapr related problems
+                // .withDaprLogLevel(DaprLogLevel.DEBUG)
+                // .withLogConsumer(outputFrame -> System.out.println(outputFrame.getUtf8String()))
                 .withAppPort(8080)
                 .withAppHealthCheckPath("/actuator/health")
                 .withAppChannelAddress("host.testcontainers.internal")
