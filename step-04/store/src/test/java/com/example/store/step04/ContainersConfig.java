@@ -182,7 +182,7 @@ public class ContainersConfig {
                 .withComponent(new Component("pubsub", "pubsub.kafka", "v1", kafkaProperties))
                 .withSubscription(new Subscription(
                         "shipping-events-subscription",
-                        "pubsub", "shipments/status", "/api/events"))
+                        "pubsub", "shipments", "/api/events"))
 
                 .withConfiguration(new Configuration("daprConfig",
                         new TracingConfigurationSettings("1", true,

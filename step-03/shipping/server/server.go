@@ -14,7 +14,7 @@ import (
 
 const (
 	pubsubName = "pubsub"
-	topic      = "shipments/status"
+	topic      = "shipments"
 )
 
 type ShipmentStatusEvent struct {
