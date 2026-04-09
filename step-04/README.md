@@ -38,7 +38,6 @@ Workflow state is persisted in PostgreSQL so that in-flight workflows survive ap
 - Node.js v22+ and npm — [nodejs.org](https://nodejs.org/en/download)
 - Docker with Docker Compose — [docker.com](https://www.docker.com/products/docker-desktop/)
 - An Anthropic API key — [console.anthropic.com](https://console.anthropic.com/)
-- Dapr CLI — [docs.dapr.io/getting-started/install-dapr-cli](https://docs.dapr.io/getting-started/install-dapr-cli/)
 - Go 1.21+ — [go.dev/dl](https://go.dev/dl/)
 
 ### Installing Go
@@ -52,15 +51,6 @@ brew install go
 
 Verify: `go version`
 
-### Installing the Dapr CLI (if not done in Step 3)
-
-```bash
-# macOS / Linux
-wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
-dapr init
-```
-
-Verify: `dapr --version`
 
 ## Running the shipping service
 
@@ -91,12 +81,7 @@ cd step-02/warehouse-mcp && mvn spring-boot:run
 # Terminal 3 — Store with Dapr sidecar
 cd step-04/store
 export ANTHROPIC_API_KEY=your-key-here
-dapr run \
-  --app-id store \
-  --app-port 8080 \
-  --dapr-http-port 3500 \
-  --resources-path ./components \
-  -- mvn spring-boot:run
+mvn spring-boot:run
 ```
 
 Open your browser at [http://localhost:8080](http://localhost:8080).

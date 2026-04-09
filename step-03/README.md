@@ -28,26 +28,7 @@ Dapr acts as a portability layer — you can swap the underlying broker (Kafka, 
 - Node.js v22+ and npm — [nodejs.org](https://nodejs.org/en/download)
 - Docker — [docker.com](https://www.docker.com/products/docker-desktop/)
 - An Anthropic API key — [console.anthropic.com](https://console.anthropic.com/)
-- Dapr CLI — [docs.dapr.io/getting-started/install-dapr-cli](https://docs.dapr.io/getting-started/install-dapr-cli/)
 
-### Installing the Dapr CLI
-
-**macOS / Linux:**
-```bash
-wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
-```
-
-**Windows (PowerShell):**
-```powershell
-powershell -Command "iwr -useb https://raw.githubusercontent.com/dapr/cli/master/install/install.ps1 | iex"
-```
-
-After installing the CLI, initialise Dapr locally (pulls the Dapr runtime containers):
-```bash
-dapr init
-```
-
-Verify: `dapr --version`
 
 ## Running the application
 
@@ -57,13 +38,7 @@ Start the store with the Dapr sidecar:
 cd step-03/store
 
 export ANTHROPIC_API_KEY=your-key-here
-
-dapr run \
-  --app-id store \
-  --app-port 8080 \
-  --dapr-http-port 3500 \
-  --resources-path ./components \
-  -- mvn spring-boot:run
+mvn spring-boot:test-run
 ```
 
 Open your browser at [http://localhost:8080](http://localhost:8080). Place an order and observe real-time WebSocket events in the UI.
@@ -86,9 +61,6 @@ mvn test
 | `WebSocketConfig` | Registers the WebSocket handler at `/ws/events` |
 | `Event` | Domain event class published to the Dapr PubSub topic |
 
-## Dapr components
-
-The `components/` directory in `step-03/store` contains the Dapr component definitions (PubSub broker configuration). In tests, the Dapr test starter replaces these with in-memory stubs.
 
 ## Next step
 
