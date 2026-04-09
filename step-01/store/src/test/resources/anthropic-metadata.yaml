@@ -13,7 +13,7 @@ operations:
       if (firstContent && firstContent.startsWith('List')) {
         log.info("Messages length: " + body.messages.length);
         if (body.messages.length === 1) {
-            return "List inventory";
+          return "List inventory";
         }
         return "List inventory results";
       } 
