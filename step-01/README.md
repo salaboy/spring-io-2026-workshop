@@ -94,3 +94,56 @@ management.tracing.sampling.probability=1.0
 ## Next step
 
 Proceed to [Step 2: MCP Tools and API Integrations](../step-02/README.md) to connect the store to a real warehouse service via the Model Context Protocol.
+
+---
+
+## Exercise: Add a new `@Tool` and observe it in traces
+
+**What you will learn:** how Spring AI registers tools, how the LLM decides which tool to call based on the description, and how each tool invocation appears as a span in Jaeger.
+
+### 1. Add the tool
+
+Open `ChatController.java` and add this method alongside the existing `@Tool` methods:
+
+```java
+@Tool(description = "Find Spring merch items within a price range. " +
+      "Use this when the user asks for items under, over, or between specific prices.")
+public String findItemsByPrice(double minPrice, double maxPrice) {
+    List<MerchItem> matches = INVENTORY.stream()
+        .filter(item -> item.price() >= minPrice && item.price() <= maxPrice)
+        .toList();
+
+    if (matches.isEmpty()) {
+        return "No items found between $%.2f and $%.2f".formatted(minPrice, maxPrice);
+    }
+    return matches.stream()
+        .map(i -> "- %s: $%.2f (%d in stock)".formatted(i.displayName(), i.price(), i.quantity()))
+        .collect(Collectors.joining("\n"));
+}
+```
+
+No other wiring is needed — Spring AI picks up every `@Tool`-annotated method in beans registered as tools via `.defaultTools(chatController)` in `ChatRestController`.
+
+### 2. Try it in the UI
+
+Start the application and open [http://localhost:8080](http://localhost:8080). Ask the assistant:
+
+- *"Show me everything under $15"* — does it pick `findItemsByPrice` instead of `listAllItems`?
+- *"What is the cheapest item you have?"* — does it combine tools to answer?
+- *"Show me items between $10 and $20"* — does it pass both bounds correctly?
+
+### 3. Observe the tool call in Jaeger
+
+Run the tests to start the Jaeger container, then open [http://localhost:16686](http://localhost:16686). Select the `store` service and find a recent trace. You should see a child span named `findItemsByPrice` nested inside the main chat span.
+
+The property `spring.ai.tools.observations.include-content=true` (already set in `application.properties`) records the tool's input arguments and return value directly on that span — no extra code needed.
+
+### 4. Experiment with the description
+
+The `description` field is the only signal the LLM uses when deciding whether to call a tool. Try these modifications and observe how tool selection changes:
+
+- Make the description vague: `"Get items"` — does the model still choose this tool for price queries?
+- Remove price-related wording entirely — does it fall back to `listAllItems`?
+- Add a conflicting instruction: `"Never use this for single-item lookups"` — does the model respect it?
+
+This shows that prompt engineering applies to tools just as much as to system prompts.
