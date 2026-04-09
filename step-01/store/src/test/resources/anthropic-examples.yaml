@@ -101,3 +101,180 @@ operations:
               "output_tokens": 558
             }
           }
+    Find by price:
+      request:
+        headers:
+          Content-Type: application/json
+        body: |-
+          {
+            "model": "claude-haiku-4-5",
+            "messages": [
+              {
+                "role": "user",
+                "content": "Find all products in the inventory that are in a price range"
+              }
+            ]
+          }
+      response:
+        mediaType: application/json
+        body: |-
+          {
+            "id": "msg_01F4rrh2fJQfoaQTj4WqobJF",
+            "model": "claude-haiku-4-5-20251001",
+            "role": "assistant",
+            "type": "message",
+            "content": [
+              {
+                "id": "toolu_01QkiEwunvaWC2cRh22A8Zi8",
+                "type": "tool_use",
+                "name": "findItemsByPrice",
+                "input": {},
+                "caller": {"type":"direct"}
+              }
+            ],
+            "stop_reason": "end_turn",
+            "stop_sequence": null,
+            "stop_details": null,
+            "usage": {
+              "input_tokens": 2155,
+              "output_tokens": 560
+            }
+          }
+    Find by price results - under:
+      request:
+        headers:
+          Content-Type: application/json
+        body: |-
+          {
+            "model": "claude-haiku-4-5",
+            "messages": [
+              {
+                "role": "user",
+                "content": "Find all products in the inventory that are under ..."
+              },
+              {
+                "role": "assistant",
+                "content": [
+                  {
+                    "tool_use_id": "toolu_01QkiEwunvaWC2cRh22A8Zi8",
+                    "type": "tool_result",
+                    "content": "Products under $25: ...",
+                  }
+                ]
+              }
+            ]
+          }
+      response:
+        mediaType: application/json
+        body: |-
+          {
+            "id": "msg_01F4rrh2fJQfoaQTj4WqobJF",
+            "model": "claude-haiku-4-5-20251001",
+            "role": "assistant",
+            "type": "message",
+            "content": [
+              {
+                "type": "text",
+                "text": "**Products under $15:**- Spring Boot Sticker: 200 units @ $4.99- Spring AI Sticker: 150 units @ $4.99- Spring Security Sticker: 175 units @ $4.99- Spring Cloud Sticker: 160 units @ $4.99- Spring Data Sticker: 140 units @ $4.99- Spring Batch Sticker: 120 units @ $4.99- Spring for GraphQL Sticker: 100 units @ $4.99- Spring Modulith Sticker: 80 units @ $4.99- Spring Authorization Server Sticker: 90 units @ $4.99- Spring Session Sticker: 70 units @ $4.99- Spring Statemachine Sticker: 60 units @ $4.99Would you like to see visual product cards or add any items to your order? 😊"
+              }
+            ],
+            "stop_reason": "end_turn",
+            "stop_sequence": null,
+            "stop_details": null,
+            "usage": {
+              "input_tokens": 2155,
+              "output_tokens": 560
+            }
+          }
+    Find by price results - cheapest:
+      request:
+        headers:
+          Content-Type: application/json
+        body: |-
+          {
+            "model": "claude-haiku-4-5",
+            "messages": [
+              {
+                "role": "user",
+                "content": "Find the cheapest product in the inventory"
+              },
+              {
+                "role": "assistant",
+                "content": [
+                  {
+                    "tool_use_id": "toolu_01QkiEwunvaWC2cRh22A8Zi8",
+                    "type": "tool_result",
+                    "content": "Cheapest product: ...",
+                  }
+                ]
+              }
+            ]
+          }
+      response:
+        mediaType: application/json
+        body: |-
+          {
+            "id": "msg_01F4rrh2fJQfoaQTj4WqobJF",
+            "model": "claude-haiku-4-5-20251001",
+            "role": "assistant",
+            "type": "message",
+            "content": [
+              {
+                "type": "text",
+                "text": "**Cheapest product:**- Spring Boot Sticker: 200 units @ $4.99Would you like to see visual product cards or add any items to your order? 😊"
+              }
+            ],
+            "stop_reason": "end_turn",
+            "stop_sequence": null,
+            "stop_details": null,
+            "usage": {
+              "input_tokens": 2155,
+              "output_tokens": 560
+            }
+          }
+    Find by price results - range:
+      request:
+        headers:
+          Content-Type: application/json
+        body: |-
+          {
+            "model": "claude-haiku-4-5",
+            "messages": [
+              {
+                "role": "user",
+                "content": "Find all products in the inventory that are in range $10 to $20"
+              },
+              {
+                "role": "assistant",
+                "content": [
+                  {
+                    "tool_use_id": "toolu_01QkiEwunvaWC2cRh22A8Zi8",
+                    "type": "tool_result",
+                    "content": "Products in range $10 to $20: ...",
+                  }
+                ]
+              }
+            ]
+          }
+      response:
+        mediaType: application/json
+        body: |-
+          {
+            "id": "msg_01F4rrh2fJQfoaQTj4WqobJF",
+            "model": "claude-haiku-4-5-20251001",
+            "role": "assistant",
+            "type": "message",
+            "content": [
+              {
+                "type": "text",
+                "text": "**Products in range $10 to $20:**Spring Boot**- Socks: 100 units @ $12.99**Spring AI**- Socks: 75 units @ $12.99**Spring Security**- Socks: 80 units @ $12.99**Spring Cloud**- Socks: 90 units @ $12.99**Spring Data**- Socks: 60 units @ $12.99**Spring Batch**- Socks: 55 units @ $12.99**Spring for GraphQL**- Socks: 40 units @ $12.99**Spring Modulith**- Socks: 30 units @ $12.99Would you like to see visual product cards or add any items to your order? 😊"
+              }
+            ],
+            "stop_reason": "end_turn",
+            "stop_sequence": null,
+            "stop_details": null,
+            "usage": {
+              "input_tokens": 2155,
+              "output_tokens": 560
+            }
+          }

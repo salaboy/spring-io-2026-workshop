@@ -10,11 +10,26 @@ operations:
     dispatcherRules: |-
       const body = JSON.parse(mockRequest.requestContent());
       let firstContent = body.messages && body.messages.length > 0 ? body.messages[0].content : null;
-      if (firstContent && firstContent.startsWith('List')) {
-        log.info("Messages length: " + body.messages.length);
-        if (body.messages.length === 1) {
-          return "List inventory";
+      if (firstContent) {
+        if (firstContent.startsWith('List')) {
+          if (body.messages.length === 1) {
+            return "List inventory";
+          }
+          return "List inventory results";
+        } else if (firstContent.includes('everything under $') 
+            || firstContent.includes('cheapest item') 
+            || firstContent.includes('items between $')) {
+          if (body.messages.length === 1) {
+            return "Find by price";
+          }
+          if (firstContent.includes('everything under $')) {
+            return "Find by price results - under";
+          } else if (firstContent.includes('cheapest item')) {
+            return "Find by price results - cheapest";
+          } else if (firstContent.includes('items between $')) {
+            return "Find by price results - range";
+          }
+          return "Find by price results - range";
         }
-        return "List inventory results";
-      } 
+      }
       return "List inventory";
