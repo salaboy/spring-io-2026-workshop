@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
+import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
@@ -67,6 +68,58 @@ public class ContainersConfig {
         }
     }
 
+    @Bean(name="warehouseContainer")
+    GenericContainer<?> warehouseContainer(Network network) {
+        return new GenericContainer<>(DockerImageName.parse("ghcr.io/salaboy/springio-warehouse:step-02"))
+                .withNetwork(network)
+                .withExposedPorts(8086)
+                .withNetworkAliases("warehouse")
+                .withEnv("MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT", "http://jaeger:4318/v1/traces");
+    }
+
+    @Bean(name="warehouseMcpContainer")
+    GenericContainer<?> warehouseMcpContainer(Network network) {
+        return new GenericContainer<>(DockerImageName.parse("ghcr.io/salaboy/springio-warehouse-mcp:step-02"))
+                .withNetwork(network)
+                .withExposedPorts(8087)
+                .withNetworkAliases("warehouse-mcp")
+                .withEnv("MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT", "http://jaeger:4318/v1/traces")
+                .withEnv("APPLICATION_WAREHOUSE_BASE_URL", "http://warehouse:8086");
+    }
+
+    @Bean(name="shippingContainer")
+    GenericContainer<?> shippingContainer(Network network, DaprContainer shippingDaprContainer) {
+        return new GenericContainer<>(DockerImageName.parse("ghcr.io/salaboy/springio-shipping:step-04"))
+                .withNetwork(network)
+                .withExposedPorts(9091)
+                .withNetworkAliases("shipping")
+                .withEnv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://jaeger:4318")
+                .withEnv("OTEL_SERVICE_NAME", "shipping")
+                .withEnv("OTEL_TRACES_EXPORTER", "otlp")
+                .withEnv("DAPR_HOST", "shipping-dapr")
+                .withEnv("DAPR_PORT", "50001")
+                .dependsOn(shippingDaprContainer);
+
+    }
+
+    @Bean
+    DynamicPropertyRegistrar warehouseProperties(GenericContainer<?> warehouseContainer) {
+        return registry -> registry.add("warehouse.url",
+                () -> "http://localhost:" + warehouseContainer.getMappedPort(8086));
+    }
+
+    @Bean
+    DynamicPropertyRegistrar storeProperties(GenericContainer<?> warehouseMcpContainer) {
+        return registry -> registry.add("spring.ai.mcp.client.streamable-http.connections.warehouse-mcp.url",
+                () -> "http://localhost:" + warehouseMcpContainer.getMappedPort(8087));
+    }
+
+    @Bean
+    DynamicPropertyRegistrar shippingProperties(GenericContainer<?> shippingContainer) {
+        return registry -> registry.add("shipping.url",
+                () -> "localhost:" + shippingContainer.getMappedPort(9091));
+    }
+
     @Bean(name="jaegerContainer")
     GenericContainer<?> jaegerContainer(Network network) {
         return new GenericContainer<>(DockerImageName.parse("jaegertracing/jaeger"))
@@ -123,11 +176,13 @@ public class ContainersConfig {
         return new DaprContainer(myDaprImage)
                 .withAppName("store-dapr")
                 .withNetwork(daprNetwork)
+                .withReusablePlacement(true)
+                .withReusableScheduler(true)
                 .withComponent(stateStoreComponent)
                 .withComponent(new Component("pubsub", "pubsub.kafka", "v1", kafkaProperties))
                 .withSubscription(new Subscription(
                         "shipping-events-subscription",
-                        "pubsub", "pubsubTopic", "/api/events"))
+                        "pubsub", "shipments/status", "/api/events"))
 
                 .withConfiguration(new Configuration("daprConfig",
                         new TracingConfigurationSettings("1", true,
@@ -142,5 +197,34 @@ public class ContainersConfig {
                 .dependsOn(postgreSQLContainer);
     }
 
+
+    @Bean
+    public DaprContainer shippingDaprContainer(Network daprNetwork,
+                                       KafkaContainer kafkaContainer){
+
+        Map<String, String> kafkaProperties = new HashMap<>();
+        kafkaProperties.put("brokers", "kafka:19092");
+        kafkaProperties.put("authType", "none");
+
+        DockerImageName myDaprImage = DockerImageName.parse("daprio/daprd:"+DAPR_VERSION);
+        return new DaprContainer(myDaprImage)
+                .withAppName("shipping-dapr")
+                .withNetworkAliases("shipping-dapr")
+                .withNetwork(daprNetwork)
+                .withReusablePlacement(true)
+                .withReusableScheduler(true)
+                .withComponent(new Component("pubsub", "pubsub.kafka", "v1", kafkaProperties))
+
+                .withConfiguration(new Configuration("daprConfig",
+                        new TracingConfigurationSettings("1", true,
+                                new OtelTracingConfigurationSettings("jaeger:4318", false, "http"), null), null))
+                //Uncomment if you want to troubleshoot Dapr related problems
+//            .withDaprLogLevel(DaprLogLevel.DEBUG)
+//            .withLogConsumer(outputFrame -> System.out.println(outputFrame.getUtf8String()))
+                .withAppPort(9091)
+                .withAppProtocol(DaprProtocol.GRPC)
+                .withAppChannelAddress("shipping")
+                .dependsOn(kafkaContainer);
+    }
 
 }

@@ -4,6 +4,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -18,7 +19,7 @@ public class ChatRestController {
             Use the available tools to look up inventory information when asked.
             When the user asks to see or browse items, use the displayMerchImages tool to show visual cards.
             Be concise and friendly in your responses.
-            Allow the user to add products to the order, and print the order content if the user requests it.
+            Allow the user to add products to the order, and print the order content if the user requests it. 
 
             MERCH DISPLAY RULE:
             When the displayMerchImages tool returns results, you MUST embed a <merch-items> JSON block verbatim in your response.
@@ -38,12 +39,16 @@ public class ChatRestController {
 
     private final ChatClient chatClient;
     private final InMemoryChatMemoryRepository memoryRepository = new InMemoryChatMemoryRepository();
+    private final ToolCallbackProvider mcpTools;
 
-    public ChatRestController(ChatClient.Builder chatClientBuilder, ChatController inventoryTools) {
+    public ChatRestController(ChatClient.Builder chatClientBuilder,
+                              ChatController inventoryTools,
+                              ToolCallbackProvider mcpTools) {
         this.chatClient = chatClientBuilder
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultTools(inventoryTools)
                 .build();
+        this.mcpTools = mcpTools;
     }
 
     @PostMapping
@@ -58,6 +63,7 @@ public class ChatRestController {
         String response = chatClient.prompt()
                 .advisors(advisor)
                 .user(request.message())
+                .toolCallbacks(mcpTools)
                 .call()
                 .content();
 
@@ -75,6 +81,7 @@ public class ChatRestController {
 
         return chatClient.prompt()
                 .advisors(advisor)
+                .toolCallbacks(mcpTools)
                 .user(request.message())
                 .stream()
                 .content();

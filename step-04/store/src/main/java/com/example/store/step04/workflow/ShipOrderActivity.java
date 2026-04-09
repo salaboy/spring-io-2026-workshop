@@ -1,7 +1,9 @@
 package com.example.store.step04.workflow;
 
 import com.example.store.step04.model.Order;
-import io.dapr.client.DaprClient;
+import com.example.store.step04.shipping.ShipOrderRequest;
+import com.example.store.step04.shipping.ShipOrderResponse;
+import com.example.store.step04.shipping.ShippingServiceGrpc;
 import io.dapr.workflows.WorkflowActivity;
 import io.dapr.workflows.WorkflowActivityContext;
 import org.slf4j.Logger;
@@ -13,10 +15,10 @@ public class ShipOrderActivity implements WorkflowActivity {
 
     private static final Logger log = LoggerFactory.getLogger(ShipOrderActivity.class);
 
-    private final DaprClient daprClient;
+    private final ShippingServiceGrpc.ShippingServiceBlockingStub shippingStub;
 
-    public ShipOrderActivity(DaprClient daprClient) {
-        this.daprClient = daprClient;
+    public ShipOrderActivity(ShippingServiceGrpc.ShippingServiceBlockingStub shippingStub) {
+        this.shippingStub = shippingStub;
     }
 
     @Override
@@ -24,18 +26,13 @@ public class ShipOrderActivity implements WorkflowActivity {
         Order order = ctx.getInput(Order.class);
         log.info("Requesting shipment for order: {}", order.orderId());
 
-//        // Call the shipping service via Dapr service invocation
-//        String trackingId = daprClient.invokeMethod(
-//                "shipping",
-//                "ship",
-//                order,
-//                io.dapr.client.domain.HttpExtension.POST,
-//                String.class
-//        ).block();
+        ShipOrderRequest request = ShipOrderRequest.newBuilder()
+                .setOrderId(order.orderId())
+                .build();
 
-        String trackingId = "123456789";
+        ShipOrderResponse response = shippingStub.shipOrder(request);
 
-        log.info("Shipment requested for order: {}, trackingId: {}", order.orderId(), trackingId);
-        return trackingId;
+        log.info("Shipment requested for order: {}, trackingId: {}", order.orderId(), response.getShipmentId());
+        return response.getShipmentId();
     }
 }

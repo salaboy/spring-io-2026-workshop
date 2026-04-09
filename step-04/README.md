@@ -22,11 +22,7 @@ Browser ──► Store (port 8080)
               ├── Dapr Sidecar ──► Kafka (PubSub)
               └── WebSocket (/ws/events)
 
-Shipping stack (Docker Compose):
-  shipping (Go gRPC, port 9091)
-  └── Dapr sidecar (port 50001)
-  └── Dapr placement (port 50006)
-  └── Dapr scheduler (port 50007)
+
 ```
 
 Workflow state is persisted in PostgreSQL so that in-flight workflows survive application restarts.
@@ -40,32 +36,7 @@ Workflow state is persisted in PostgreSQL so that in-flight workflows survive ap
 - An Anthropic API key — [console.anthropic.com](https://console.anthropic.com/)
 - Go 1.21+ — [go.dev/dl](https://go.dev/dl/)
 
-### Installing Go
 
-**macOS:**
-```bash
-brew install go
-```
-
-**Linux / Windows:** Download from [go.dev/dl](https://go.dev/dl/) and follow the installer.
-
-Verify: `go version`
-
-
-## Running the shipping service
-
-The shipping microservice runs as a Docker Compose stack:
-
-```bash
-cd step-04/shipping
-docker compose up --build
-```
-
-This starts:
-- `shipping` — Go gRPC server (port 9091)
-- `dapr` — Dapr sidecar (port 50001)
-- `placement` — Dapr placement service (port 50006)
-- `scheduler` — Dapr scheduler service (port 50007)
 
 ## Running the store
 

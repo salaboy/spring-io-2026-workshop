@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/spring-io-2026-workshop/shipping/gen/shippingpb";
+option java_package = "com.example.store.step04.shipping";
+option java_multiple_files = true;
+option java_outer_classname = "ShippingServiceProto";
+
+package springio.workshop.v1;
+
+message ShipOrderRequest {
+    string order_id = 1;
+    Address shipping_address = 2;
+}
+
+message Address {
+    string customer_id = 1;
+    string city = 2;
+    string country = 3;
+}
+
+message ShipOrderResponse {
+    string shipment_id = 1;
+    google.protobuf.Timestamp shipment_date = 2;
+    google.protobuf.Timestamp estimated_delivery_date = 3;
+    ShipmentStatus status = 4;
+}
+
+enum ShipmentStatus {
+    PENDING = 0;
+    SHIPPED = 1;
+    DELIVERED = 2;
+}
+
+service ShippingService {
+    rpc ShipOrder(ShipOrderRequest) returns (ShipOrderResponse);
+}

@@ -14,38 +14,7 @@ import java.util.stream.Collectors;
 @Component
 public class ChatController {
 
-//    static final List<MerchItem> INVENTORY = List.of(
-//            new MerchItem("Spring Boot",       "T-Shirt", 50,  29.99, "https://spring.io/img/projects/spring-boot.svg"),
-//            new MerchItem("Spring Boot",       "Socks",  100,  12.99, "https://spring.io/img/projects/spring-boot.svg"),
-//            new MerchItem("Spring Boot",       "Sticker", 200,  4.99, "https://spring.io/img/projects/spring-boot.svg"),
-//            new MerchItem("Spring AI",         "T-Shirt",  30, 29.99, "https://spring.io/img/projects/spring-ai.svg"),
-//            new MerchItem("Spring AI",         "Socks",    75, 12.99, "https://spring.io/img/projects/spring-ai.svg"),
-//            new MerchItem("Spring AI",         "Sticker", 150,  4.99, "https://spring.io/img/projects/spring-ai.svg"),
-//            new MerchItem("Spring Security",   "T-Shirt",  40, 29.99, "https://spring.io/img/projects/spring-security.svg"),
-//            new MerchItem("Spring Security",   "Socks",    80, 12.99, "https://spring.io/img/projects/spring-security.svg"),
-//            new MerchItem("Spring Security",   "Sticker", 175,  4.99, "https://spring.io/img/projects/spring-security.svg"),
-//            new MerchItem("Spring Cloud",      "T-Shirt",  35, 29.99, "https://spring.io/img/projects/spring-cloud.svg"),
-//            new MerchItem("Spring Cloud",      "Socks",    90, 12.99, "https://spring.io/img/projects/spring-cloud.svg"),
-//            new MerchItem("Spring Cloud",      "Sticker", 160,  4.99, "https://spring.io/img/projects/spring-cloud.svg"),
-//            new MerchItem("Spring Data",       "T-Shirt",  25, 29.99, "https://spring.io/img/projects/spring-data.svg"),
-//            new MerchItem("Spring Data",       "Socks",    60, 12.99, "https://spring.io/img/projects/spring-data.svg"),
-//            new MerchItem("Spring Data",       "Sticker", 140,  4.99, "https://spring.io/img/projects/spring-data.svg"),
-//            new MerchItem("Spring Batch",      "T-Shirt",  20, 29.99, "https://spring.io/img/projects/spring-batch.svg"),
-//            new MerchItem("Spring Batch",      "Socks",    55, 12.99, "https://spring.io/img/projects/spring-batch.svg"),
-//            new MerchItem("Spring Batch",      "Sticker", 120,  4.99, "https://spring.io/img/projects/spring-batch.svg"),
-//            new MerchItem("Spring for GraphQL","T-Shirt",  15, 29.99, "https://spring.io/img/projects/spring-graphql.svg"),
-//            new MerchItem("Spring for GraphQL","Socks",    40, 12.99, "https://spring.io/img/projects/spring-graphql.svg"),
-//            new MerchItem("Spring for GraphQL","Sticker", 100,  4.99, "https://spring.io/img/projects/spring-graphql.svg"),
-//            new MerchItem("Spring Modulith",   "T-Shirt",  10, 29.99, "https://spring.io/img/projects/spring-modulith.svg"),
-//            new MerchItem("Spring Modulith",   "Socks",    30, 12.99, "https://spring.io/img/projects/spring-modulith.svg"),
-//            new MerchItem("Spring Modulith",   "Sticker",  80,  4.99, "https://spring.io/img/projects/spring-modulith.svg"),
-//            new MerchItem("Spring Authorization Server", "T-Shirt",  18, 29.99, "https://spring.io/img/projects/spring-authorization-server.svg"),
-//            new MerchItem("Spring Authorization Server", "Sticker",  90,  4.99, "https://spring.io/img/projects/spring-authorization-server.svg"),
-//            new MerchItem("Spring Session",    "T-Shirt",  12, 29.99, "https://spring.io/img/projects/logo-session.png"),
-//            new MerchItem("Spring Session",    "Sticker",  70,  4.99, "https://spring.io/img/projects/logo-session.png"),
-//            new MerchItem("Spring Statemachine","T-Shirt",  8, 29.99, "https://spring.io/img/projects/spring-statemachine.svg"),
-//            new MerchItem("Spring Statemachine","Sticker",  60,  4.99, "https://spring.io/img/projects/spring-statemachine.svg")
-//    );
+
 
     @Tool(description = "Display visual product cards for Spring merch items with their project logos in the UI. "
             + "Pass a project name (e.g. 'Spring Boot'), a type (e.g. 'T-Shirt', 'Socks', 'Sticker'), or 'all' to show everything.")
