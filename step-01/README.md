@@ -29,7 +29,7 @@ Traces are exported via OTLP to a local Jaeger instance spun up automatically by
 - Java 21 — [adoptium.net](https://adoptium.net/temurin/releases/?version=21)
 - Maven — [maven.apache.org](https://maven.apache.org/download.cgi)
 - Docker — [docker.com](https://www.docker.com/products/docker-desktop/) (required by Testcontainers)
-- An Anthropic API key — [console.anthropic.com](https://console.anthropic.com/)
+- An Anthropic API key — [Anthorpic Get Started](https://platform.claude.com/docs/en/get-started)
 
 ## Running the application
 
@@ -43,22 +43,14 @@ mvn spring-boot:run
 
 Open your browser at [http://localhost:8080](http://localhost:8080).
 
-## Running the tests
+## Running in dev (test) mode
 
 The test suite uses Testcontainers to start Jaeger (for OTEL trace collection) and Microcks (for API contract validation). Docker must be running.
 
 ```bash
 cd step-01/store
 
-export ANTHROPIC_API_KEY=your-key-here
-
-mvn test
-```
-
-To speed up repeated test runs by reusing containers, enable Testcontainers reuse:
-
-```bash
-echo "testcontainers.reuse.enable=true" >> ~/.testcontainers.properties
+mvn spring-boot:test-run
 ```
 
 ## Key configuration
@@ -134,7 +126,7 @@ Start the application and open [http://localhost:8080](http://localhost:8080). A
 
 ### 3. Observe the tool call in Jaeger
 
-Run the tests to start the Jaeger container, then open [http://localhost:16686](http://localhost:16686). Select the `store` service and find a recent trace. You should see a child span named `findItemsByPrice` nested inside the main chat span.
+Run the tests to start the Jaeger container, then open [http://localhost:XXXX](http://localhost:XXXX). Select the `store` service and find a recent trace. You should see a child span named `findItemsByPrice` nested inside the main chat span.
 
 The property `spring.ai.tools.observations.include-content=true` (already set in `application.properties`) records the tool's input arguments and return value directly on that span — no extra code needed.
 
