@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	pubsubName  = "pubsub"
-	topic       = "shipments/status"
-	tracerName  = "shipping-service"
+	pubsubName = "pubsub"
+	topic      = "shipments"
+	tracerName = "shipping-service"
 )
 
 type ShipmentStatusEvent struct {
