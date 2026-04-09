@@ -1,0 +1,27 @@
+include:
+  - path: ./infrastructure.yml
+  - path: ./shipping-mcp.yml
+
+services:
+  dapr-store:
+    image: "daprio/daprd:1.17.0"
+    container_name: dapr-store
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: [
+      "./daprd",
+      "--app-id", "store",
+      "--app-channel-address", "host.docker.internal",
+      "--app-port", "8080",
+      "--app-protocol", "http",
+      "--placement-host-address", "placement:50006", # Dapr's placement service can be reach via the docker DNS entry
+      "--scheduler-host-address", "scheduler:50007", # Dapr's scheduler service can be reach via the docker DNS entry
+      "--resources-path", "./components"
+    ]
+    ports:
+      - "50001:50001" # Dapr sidecar gRPC port
+    volumes:
+      - "./components/:/components" # Mount our components folder for the runtime to use. The mounted location must match the --resources-path argument.
+    depends_on:
+      - kafka
+    restart: on-failure

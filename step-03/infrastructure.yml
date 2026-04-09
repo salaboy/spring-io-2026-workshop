@@ -1,0 +1,51 @@
+services:
+  jaeger:
+    image: jaegertracing/jaeger
+    container_name: jaeger
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "4317:4317" # Jaeger collector gRPC endpoint
+      - "4318:4318" # Jaeger collector HTTP endpoint
+
+  kafka:
+    image: apache/kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "19092:19092"
+    command: [
+      "sh", "-c",
+      "export KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092,BROKER://kafka:9093,TC-0://kafka:19092 && /etc/kafka/docker/run"
+    ]
+    environment:
+      - CLUSTER_ID=kafka-cluster 
+      - KAFKA_NODE_ID=1
+      - KAFKA_INTER_BROKER_LISTENER_NAME=BROKER
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9094
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+      - KAFKA_LISTENERS=TC-0://kafka:19092,PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9094,BROKER://0.0.0.0:9093
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=BROKER:PLAINTEXT,PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,TC-0:PLAINTEXT
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092,BROKER://kafka:9093,TC-0://kafka:19092
+      
+  placement:
+    image: "daprio/placement"
+    container_name: dapr-placement
+    command: ["./placement", "--port", "50006"]
+    ports:
+      - "50006:50006"
+
+  scheduler:
+    image: "daprio/scheduler"
+    container_name: dapr-scheduler
+    command: ["./scheduler", "--port", "50007", "--etcd-data-dir", "/data"]
+    ports:
+      - "50007:50007"
+    user: root
+    volumes:
+      - "./dapr-etcd-data/:/data"
