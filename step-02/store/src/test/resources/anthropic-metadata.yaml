@@ -1,0 +1,27 @@
+# yaml-language-server: $schema= https://microcks.io/schemas/APIExamples-v1alpha1-schema.json
+apiVersion: mocks.microcks.io/v1alpha1
+kind: APIMetadata
+metadata:
+  name: Anthropic API
+  version: '0.83.0'
+operations:
+  'POST /v1/messages':
+    dispatcher: JS
+    dispatcherRules: |-
+      const body = JSON.parse(mockRequest.requestContent());   
+      let firstContent = body.messages && body.messages.length > 0 ? body.messages[0].content : null;
+      if (firstContent) {
+        let messagesLength = body.messages.length;
+        if (firstContent.startsWith('List')) {
+          if (messagesLength === 1) {
+            return "List inventory";
+          }
+          if (messagesLength === 3) {
+            return "List inventory results";
+          }
+          if (messagesLength >= 4) {
+            return "Display Merch Images results";
+          }
+        }
+      }
+      return "List inventory";

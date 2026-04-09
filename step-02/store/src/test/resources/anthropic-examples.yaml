@@ -1,0 +1,214 @@
+# yaml-language-server: $schema= https://microcks.io/schemas/APIExamples-v1alpha1-schema.json
+apiVersion: mocks.microcks.io/v1alpha1
+kind: APIExamples
+metadata:
+  name: Anthropic API
+  version: '0.83.0'
+operations:
+  'POST /v1/messages':
+    List inventory:
+      request:
+        headers:
+          Content-Type: application/json
+        body: |-
+          {
+            "model": "claude-haiku-4-5",
+            "messages": [
+              {
+                "role": "user",
+                "content": "List all the products in the inventory"
+              }
+            ]
+          }
+      response:
+        mediaType: application/json
+        body: |-
+          {
+            "id": "msg_01MkHozmWBwsPYFunY2Rpvbx",
+            "model": "claude-haiku-4-5-20251001",
+            "role": "assistant",
+            "type": "message",
+            "content": [
+              {
+                "type":"text",
+                "text":"I'll fetch all the available products from the inventory for you."
+              },
+              {
+                "id": "toolu_01XMGuoBeExysvLSnF7P5Ljw",
+                "type": "tool_use",
+                "name": "list_inventory",
+                "input": {},
+                "caller": {"type":"direct"}
+              }
+            ],
+            "stop_reason": "tool_use",
+            "stop_sequence": null,
+            "stop_details": null,
+            "usage": {
+              "input_tokens":1816,
+              "output_tokens":37
+            }
+          }
+    List inventory results:
+      request:
+        headers:
+          Content-Type: application/json
+        body: |-
+          {
+            "max_tokens": 4096,
+            "messages": [
+              {
+                "content": "List all the products",
+                "role": "user"
+              },
+              {
+                "content": [
+                  {
+                    "id": "toolu_01XMGuoBeExysvLSnF7P5Ljw",
+                    "input": {},
+                    "name": "list_inventory",
+                    "type": "tool_use"
+                  }
+                ],
+                "role": "assistant"
+              },
+              {
+                "content": [
+                  {
+                    "tool_use_id": "toolu_01XMGuoBeExysvLSnF7P5Ljw",
+                    "type": "tool_result",
+                    "content": "[{\"text\":\"{\\\"products\\\":[{\\\"projectName\\\":\\\"Spring Modulith\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":10,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-modulith.svg\\\"},{\\\"projectName\\\":\\\"Spring Batch\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":55,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-batch.svg\\\"},{\\\"projectName\\\":\\\"Spring Security\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":175,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-security.svg\\\"},{\\\"projectName\\\":\\\"Spring Boot\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":100,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-boot.svg\\\"},{\\\"projectName\\\":\\\"Spring Session\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":70,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/logo-session.png\\\"},{\\\"projectName\\\":\\\"Spring Data\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":60,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https:// spring.io/img/projects/spring-data.svg\\\"},{\\\"projectName\\\":\\\"Spring Modulith\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":80,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-modulith.svg\\\"},{\\\"projectName\\\":\\\"Spring Boot\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":200,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-boot.svg\\\"},{\\\"projectName\\\":\\\"Spring Cloud\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":90,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-cloud.svg\\\"},{\\\"projectName\\\":\\\"Spring Session\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":12,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/logo-session.png\\\"},{\\\"projectName\\\":\\\"Spring Statemachine\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":60,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-statemachine.svg\\\"},{\\\"projectName\\\":\\\"Spring Batch\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":120,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-batch.svg\\\"},{\\\"projectName\\\":\\\"Spring Batch\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":20,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-batch.svg\\\"},{\\\"projectName\\\":\\\"Spring Statemachine\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":8,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-statemachine.svg\\\"},{\\\"projectName\\\":\\\"Spring Cloud\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":35,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-cloud.svg\\\"},{\\\"projectName\\\":\\\"Spring Boot\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":50,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-boot.svg\\\"},{\\\"projectName\\\":\\\"Spring AI\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":75,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-ai.svg\\\"},{\\\"projectName\\\":\\\"Spring for GraphQL\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":40,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-graphql.svg\\\"},{\\\"projectName\\\":\\\"Spring Data\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":25,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-data.svg\\\"},{\\\"projectName\\\":\\\"Spring Modulith\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":30,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-modulith.svg\\\"},{\\\"projectName\\\":\\\"Spring Cloud\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":160,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-cloud.svg\\\"},{\\\"projectName\\\":\\\"Spring Security\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":80,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-security.svg\\\"},{\\\"projectName\\\":\\\"Spring AI\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":30,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-ai.svg\\\"},{\\\"projectName\\\":\\\"Spring for GraphQL\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":15,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-graphql.svg\\\"},{\\\"projectName\\\":\\\"Spring Security\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":40,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-security.svg\\\"},{\\\"projectName\\\":\\\"Spring AI\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":150,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-ai.svg\\\"},{\\\"projectName\\\":\\\"Spring Data\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":140,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-data.svg\\\"},{\\\"projectName\\\":\\\"Spring Authorization Server\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":18,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-authorization-server.svg\\\"},{\\\"projectName\\\":\\\"Spring Authorization Server\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":90,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-authorization-server.svg\\\"},{\\\"projectName\\\":\\\"Spring for GraphQL\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":100,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-graphql.svg\\\"}]}\"}]"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "model": "claude-haiku-4-5",
+            "system": "You are a helpful store assistant for the Spring Merch store.\nYou help customers find products and create orders.\nUse the available tools to look up inventory information when asked.\nWhen the user asks to see or browse items, use the displayMerchImages tool to show visual cards.\nBe concise and friendly in your responses.\nAllow the user to add products to the order, and print the order content if the user requests it.\n\nMERCH DISPLAY RULE:\nWhen the displayMerchImages tool returns results, you MUST embed a <merch-items> JSON block verbatim in your response.\nPlace the <merch-items> block at the start of your response, then add your message after it.\nDo not paraphrase, reformat, or omit the block.\n\nORDER CONFIRMATION RULE:\nAfter the placeOrder tool returns successfully, you MUST embed an <order-placed> block immediately before your confirmation text.\nThe block must contain a JSON object with:\n  - orderId: the order ID string from the tool result (e.g. \"A1B2C3D4\")\n  - items: array of { name: \"<projectName> <type>\", quantity: <number>, unitPrice: <number> }\n  - total: total price as a number\nExample:\n<order-placed>{\"orderId\":\"A1B2C3D4\",\"items\":[{\"name\":\"Spring Boot T-Shirt\",\"quantity\":2,\"unitPrice\":29.99},{\"name\":\"Spring AI Sticker\",\"quantity\":3,\"unitPrice\":4.99}],\"total\":74.95}</order-placed>\nThen follow with your friendly confirmation message.\n",
+            "tools": []
+          }
+      response:
+        mediaType: application/json
+        body: |-
+          {
+            "id": "msg_01F4rrh2fJQfoaQTj4WqobJF",
+            "model": "claude-haiku-4-5-20251001",
+            "role": "assistant",
+            "type": "message",
+            "content": [
+              {
+                "type":"text",
+                "text":"Now let me display all these products for you:"
+              },
+              {
+                "id": "toolu_01FQtrDfBwg2MYcFSDJYiSYp",
+                "type": "tool_use",
+                "name": "displayMerchImages",
+                "input": {
+                  "query": "all",
+                  "items": [
+                    {"projectName":"Spring Modulith","type":"T-Shirt","quantity":10,"price":29.99,"logoUrl":"https://spring.io/img/projects/spring-modulith.svg"},{"projectName":"Spring Batch","type":"Socks","quantity":55,"price":12.99,"logoUrl":"https://spring.io/img/projects/spring-batch.svg"},{"projectName":"Spring Security","type":"Sticker","quantity":175,"price":4.99,"logoUrl":"https://spring.io/img/projects/spring-security.svg"},{"projectName":"Spring Boot","type":"Socks","quantity":100,"price":12.99,"logoUrl":"https://spring.io/img/projects/spring-boot.svg"},{"projectName":"Spring Session","type":"Sticker","quantity":70,"price":4.99,"logoUrl":"https://spring.io/img/projects/logo-session.png"},{"projectName":"Spring Data","type":"Socks","quantity":60,"price":12.99,"logoUrl":"https://spring.io/img/projects/spring-data.svg"},{"projectName":"Spring Modulith","type":"Sticker","quantity":80,"price":4.99,"logoUrl":"https://spring.io/img/projects/spring-modulith.svg"},{"projectName":"Spring Boot","type":"Sticker","quantity":200,"price":4.99,"logoUrl":"https://spring.io/img/projects/spring-boot.svg"},{"projectName":"Spring Cloud","type":"Socks","quantity":90,"price":12.99,"logoUrl":"https://spring.io/img/projects/spring-cloud.svg"},{"projectName":"Spring Session","type":"T-Shirt","quantity":12,"price":29.99,"logoUrl":"https://spring.io/img/projects/logo-session.png"},{"projectName":"Spring Statemachine","type":"Sticker","quantity":60,"price":4.99,"logoUrl":"https://spring.io/img/projects/spring-statemachine.svg"},{"projectName":"Spring Batch","type":"Sticker","quantity":120,"price":4.99,"logoUrl":"https://spring.io/img/projects/spring-batch.svg"},{"projectName":"Spring Batch","type":"T-Shirt","quantity":20,"price":29.99,"logoUrl":"https://spring.io/img/projects/spring-batch.svg"},{"projectName":"Spring Statemachine","type":"T-Shirt","quantity":8,"price":29.99,"logoUrl":"https://spring.io/img/projects/spring-statemachine.svg"},{"projectName":"Spring Cloud","type":"T-Shirt","quantity":35,"price":29.99,"logoUrl":"https://spring.io/img/projects/spring-cloud.svg"},{"projectName":"Spring Boot","type":"T-Shirt","quantity":50,"price":29.99,"logoUrl":"https://spring.io/img/projects/spring-boot.svg"},{"projectName":"Spring AI","type":"Socks","quantity":75,"price":12.99,"logoUrl":"https://spring.io/img/projects/spring-ai.svg"},{"projectName":"Spring for GraphQL","type":"Socks","quantity":40,"price":12.99,"logoUrl":"https://spring.io/img/projects/spring-graphql.svg"},{"projectName":"Spring Data","type":"T-Shirt","quantity":25,"price":29.99,"logoUrl":"https://spring.io/img/projects/spring-data.svg"},{"projectName":"Spring Modulith","type":"Socks","quantity":30,"price":12.99,"logoUrl":"https://spring.io/img/projects/spring-modulith.svg"},{"projectName":"Spring Cloud","type":"Sticker","quantity":160,"price":4.99,"logoUrl":"https://spring.io/img/projects/spring-cloud.svg"},{"projectName":"Spring Security","type":"Socks","quantity":80,"price":12.99,"logoUrl":"https://spring.io/img/projects/spring-security.svg"},{"projectName":"Spring AI","type":"T-Shirt","quantity":30,"price":29.99,"logoUrl":"https://spring.io/img/projects/spring-ai.svg"},{"projectName":"Spring for GraphQL","type":"T-Shirt","quantity":15,"price":29.99,"logoUrl":"https://spring.io/img/projects/spring-graphql.svg"},{"projectName":"Spring Security","type":"T-Shirt","quantity":40,"price":29.99,"logoUrl":"https://spring.io/img/projects/spring-security.svg"},{"projectName":"Spring AI","type":"Sticker","quantity":150,"price":4.99,"logoUrl":"https://spring.io/img/projects/spring-ai.svg"},{"projectName":"Spring Data","type":"Sticker","quantity":140,"price":4.99,"logoUrl":"https://spring.io/img/projects/spring-data.svg"},{"projectName":"Spring Authorization Server","type":"T-Shirt","quantity":18,"price":29.99,"logoUrl":"https://spring.io/img/projects/spring-authorization-server.svg"},{"projectName":"Spring Authorization Server","type":"Sticker","quantity":90,"price":4.99,"logoUrl":"https://spring.io/img/projects/spring-authorization-server.svg"},{"projectName":"Spring for GraphQL","type":"Sticker","quantity":100,"price":4.99,"logoUrl":"https://spring.io/img/projects/spring-graphql.svg"}
+                  ]
+                },
+                "caller": {"type":"direct"}
+              }
+            ],
+            "stop_reason": "end_turn",
+            "stop_sequence": null,
+            "stop_details": null,
+            "usage": {
+              "input_tokens": 2155,
+              "output_tokens": 558
+            }
+          }
+    Display Merch Images results:
+      request:
+        headers:
+          Content-Type: application/json
+        body: |-
+          {
+            "max_tokens": 4096,
+            "messages": [
+              {
+                "content": "List all the products",
+                "role": "user"
+              },
+              {
+                "content": [
+                  {
+                    "id": "toolu_01XMGuoBeExysvLSnF7P5Ljw",
+                    "input": {},
+                    "name": "list_inventory",
+                    "type": "tool_use"
+                  }
+                ],
+                "role": "assistant"
+              },
+              {
+                "content": [
+                  {
+                    "tool_use_id": "toolu_01XMGuoBeExysvLSnF7P5Ljw",
+                    "type": "tool_result",
+                    "content": "[{\"text\":\"{\\\"products\\\":[{\\\"projectName\\\":\\\"Spring Modulith\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":10,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-modulith.svg\\\"},{\\\"projectName\\\":\\\"Spring Batch\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":55,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-batch.svg\\\"},{\\\"projectName\\\":\\\"Spring Security\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":175,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-security.svg\\\"},{\\\"projectName\\\":\\\"Spring Boot\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":100,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-boot.svg\\\"},{\\\"projectName\\\":\\\"Spring Session\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":70,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/logo-session.png\\\"},{\\\"projectName\\\":\\\"Spring Data\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":60,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https:// spring.io/img/projects/spring-data.svg\\\"},{\\\"projectName\\\":\\\"Spring Modulith\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":80,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-modulith.svg\\\"},{\\\"projectName\\\":\\\"Spring Boot\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":200,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-boot.svg\\\"},{\\\"projectName\\\":\\\"Spring Cloud\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":90,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-cloud.svg\\\"},{\\\"projectName\\\":\\\"Spring Session\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":12,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/logo-session.png\\\"},{\\\"projectName\\\":\\\"Spring Statemachine\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":60,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-statemachine.svg\\\"},{\\\"projectName\\\":\\\"Spring Batch\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":120,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-batch.svg\\\"},{\\\"projectName\\\":\\\"Spring Batch\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":20,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-batch.svg\\\"},{\\\"projectName\\\":\\\"Spring Statemachine\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":8,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-statemachine.svg\\\"},{\\\"projectName\\\":\\\"Spring Cloud\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":35,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-cloud.svg\\\"},{\\\"projectName\\\":\\\"Spring Boot\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":50,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-boot.svg\\\"},{\\\"projectName\\\":\\\"Spring AI\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":75,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-ai.svg\\\"},{\\\"projectName\\\":\\\"Spring for GraphQL\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":40,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-graphql.svg\\\"},{\\\"projectName\\\":\\\"Spring Data\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":25,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-data.svg\\\"},{\\\"projectName\\\":\\\"Spring Modulith\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":30,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-modulith.svg\\\"},{\\\"projectName\\\":\\\"Spring Cloud\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":160,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-cloud.svg\\\"},{\\\"projectName\\\":\\\"Spring Security\\\",\\\"productType\\\":\\\"Socks\\\",\\\"quantity\\\":80,\\\"price\\\":12.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-security.svg\\\"},{\\\"projectName\\\":\\\"Spring AI\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":30,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-ai.svg\\\"},{\\\"projectName\\\":\\\"Spring for GraphQL\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":15,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-graphql.svg\\\"},{\\\"projectName\\\":\\\"Spring Security\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":40,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-security.svg\\\"},{\\\"projectName\\\":\\\"Spring AI\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":150,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-ai.svg\\\"},{\\\"projectName\\\":\\\"Spring Data\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":140,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-data.svg\\\"},{\\\"projectName\\\":\\\"Spring Authorization Server\\\",\\\"productType\\\":\\\"T-Shirt\\\",\\\"quantity\\\":18,\\\"price\\\":29.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-authorization-server.svg\\\"},{\\\"projectName\\\":\\\"Spring Authorization Server\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":90,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-authorization-server.svg\\\"},{\\\"projectName\\\":\\\"Spring for GraphQL\\\",\\\"productType\\\":\\\"Sticker\\\",\\\"quantity\\\":100,\\\"price\\\":4.99,\\\"logoUrl\\\":\\\"https://spring.io/img/projects/spring-graphql.svg\\\"}]}\"}]"
+                  }
+                ],
+                "role": "user"
+              },
+              {
+                "content": [
+                  {
+                    "id": "toolu_01JM47t9YtYGS9GnTLfNVGBa",
+                    "input": {
+                      "query": "all",
+                      "items": []
+                    },
+                    "name": "displayMerchImages",
+                    "type": "tool_use"
+                  }
+                ],
+                "role": "assistant"
+              },
+              {
+                "content": [
+                  {
+                    "tool_use_id": "toolu_01JM47t9YtYGS9GnTLfNVGBa",
+                    "type": "tool_result",
+                    "content": "\"<merch-items>[]</merch-items>\""
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "model": "claude-haiku-4-5"
+          }
+      response:
+        mediaType: application/json
+        body: |-
+          {
+            "model": "claude-haiku-4-5-20251001",
+            "id": "msg_014TDzzBNdULEt52AY7ijTCS",
+            "type": "message",
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "<merch-items>[]</merch-items>\n\nHere's our complete Spring Merch inventory! We have **30 products** available featuring popular Spring projects:\n\n**T-Shirts** ($29.99 each):\n- Spring Boot, Spring Security, Spring Cloud, Spring Data, Spring AI, Spring Batch, Spring Session, Spring Statemachine, Spring Modulith, Spring for GraphQL, Spring Authorization Server\n\n**Socks** ($12.99 per pair):\n- Spring Boot, Spring Security, Spring Cloud, Spring Data, Spring AI, Spring Batch, Spring Modulith, Spring for GraphQL\n\n**Stickers** ($4.99 each):\n- Spring Boot, Spring Security, Spring Cloud, Spring Data, Spring AI, Spring Batch, Spring Session, Spring Statemachine, Spring Modulith, Spring for GraphQL, Spring Authorization Server\n\nAll items are in stock and ready to order! Would you like to see items from a specific project or product type, or would you like to add something to your cart?"
+              }
+            ],
+            "stop_reason": "end_turn",
+            "stop_sequence": null,
+            "stop_details": null,
+            "usage": {
+              "input_tokens": 5221,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "output_tokens": 233,
+              "service_tier": "standard",
+              "inference_geo": "not_available"
+            }
+          }
+    

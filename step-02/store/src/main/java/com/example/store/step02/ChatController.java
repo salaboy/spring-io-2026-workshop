@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 @Component
 public class ChatController {
 
-
-
     @Tool(description = "Display visual product cards for Spring merch items with their project logos in the UI. "
             + "Pass a project name (e.g. 'Spring Boot'), a type (e.g. 'T-Shirt', 'Socks', 'Sticker'), or 'all' to show everything.")
     public String displayMerchImages(String query, List<MerchItem> items) {

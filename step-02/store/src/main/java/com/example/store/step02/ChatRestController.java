@@ -40,6 +40,7 @@ public class ChatRestController {
     private final ChatClient chatClient;
     private final InMemoryChatMemoryRepository memoryRepository = new InMemoryChatMemoryRepository();
     private final ToolCallbackProvider mcpTools;
+    
     public ChatRestController(ChatClient.Builder chatClientBuilder,
                               ToolCallbackProvider mcpTools,
                               ChatController inventoryTools) {
