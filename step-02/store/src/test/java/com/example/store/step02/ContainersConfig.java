@@ -71,7 +71,8 @@ public class ContainersConfig {
     MicrocksContainer microcks(Network network) {
         return new MicrocksContainer("quay.io/microcks/microcks-uber:1.13.2-native")
             .withNetwork(network)
-            .withMainArtifacts("anthropic-openapi.yaml")
+            .withNetworkAliases("microcks")
+            .withMainArtifacts("anthropic-openapi.yaml", "warehouse-openapi-1.0.0.yaml")
             .withSecondaryArtifacts("anthropic-metadata.yaml", "anthropic-examples.yaml")
             .withEnv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://jaeger:4317")
             .withEnv("OTEL_TRACES_EXPORTER", "otlp")
@@ -83,6 +84,27 @@ public class ContainersConfig {
         return (registrar) -> {
             if (microcks != null) {
                 registrar.add("spring.ai.anthropic.base-url", () -> microcks.getRestMockEndpoint("Anthropic API", "0.83.0"));
+            }
+        };
+    }
+
+    @Bean(name="warehouseMcpContainer")
+    @ConditionalOnProperty(name = "microcks.enabled", havingValue = "true")
+    GenericContainer<?> warehouseMcpContainer(Network network, MicrocksContainer microcks) {
+        return new GenericContainer<>(DockerImageName.parse("ghcr.io/salaboy/springio-warehouse-mcp:step-02"))
+                .withNetwork(network)
+                .withExposedPorts(8087)
+                .withNetworkAliases("warehouse-mcp")
+                .withEnv("MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT", "http://jaeger:4318/v1/traces")
+                .withEnv("APPLICATION_WAREHOUSE_BASE_URL", "http://microcks:8080/rest/Warehouse+API/1.0.0");
+    }
+
+    @Bean
+    public DynamicPropertyRegistrar storeProperties(@Nullable GenericContainer<?> warehouseMcpContainer) {
+        return registry -> {
+            if (warehouseMcpContainer != null) {
+                registry.add("spring.ai.mcp.client.streamable-http.connections.warehouse-mcp.url",
+                        () -> "http://localhost:" + warehouseMcpContainer.getMappedPort(8087));
             }
         };
     }

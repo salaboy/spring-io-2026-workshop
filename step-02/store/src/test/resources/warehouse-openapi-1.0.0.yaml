@@ -1,0 +1,172 @@
+openapi: 3.1.0
+info:
+  title: Warehouse API
+  version: 1.0.0
+  description: This API allows to manage the warehouse inventory.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+paths:
+  /inventory:
+    get:
+      summary: Get the current inventory
+      responses:
+        '200':
+          description: Inventory retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryResponse'
+              examples:
+                all products:
+                  value:
+                    products:
+                      - projectName: "Spring Boot"
+                        productType: "T-Shirt"
+                        quantity: 50
+                        price: 19.99
+                        logoUrl: "https://example.com/spring-boot-tshirt.png"
+                      - projectName: "Spring Boot"
+                        productType: "Socks"
+                        quantity: 100
+                        price: 12.99
+                        logoUrl: "https://example.com/spring-boot-socks.png"
+                      - projectName: "Spring Boot"
+                        productType: "Sticker"
+                        quantity: 200
+                        price: 4.99
+                        logoUrl: "https://example.com/spring-boot-sticker.png"
+  /inventory/{projectName}/{productType}:
+    get:
+      summary: Get the inventory for a specific product
+      parameters:
+        - name: projectName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The name of the project to retrieve the inventory for
+          examples:
+            Spring Boot T-Shirt:
+              value: "Spring Boot"
+            Spring Boot Socks:
+              value: "Spring Boot"
+            Spring Boot Sticker:
+              value: "Spring Boot"
+        - name: productType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The type of the product to retrieve the inventory for
+          examples:
+            Spring Boot T-Shirt:
+              value: "T-Shirt"
+            Spring Boot Socks:
+              value: "Socks"
+            Spring Boot Sticker:
+              value: "Sticker"
+      responses:
+        '200':
+          description: Product retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+              examples:
+                Spring Boot T-Shirt:
+                  value:
+                    projectName: "Spring Boot"
+                    productType: "T-Shirt"
+                    quantity: 50
+                    price: 19.99
+                    logoUrl: "https://example.com/spring-boot-tshirt.png"
+                Spring Boot Socks:
+                  value:
+                    projectName: "Spring Boot"
+                    productType: "Socks"
+                    quantity: 100
+                    price: 12.99
+                    logoUrl: "https://example.com/spring-boot-socks.png"
+                Spring Boot Sticker:
+                  value:
+                    projectName: "Spring Boot"
+                    productType: "Sticker"
+                    quantity: 200
+                    price: 4.99
+                    logoUrl: "https://example.com/spring-boot-sticker.png"
+        '404':
+          description: Product not found
+  /inventory/{projectName}/{productType}/acquire:
+    post:
+      summary: Acquire a specific quantity of a product from the inventory
+      parameters:
+        - name: projectName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The name of the project to acquire the product from
+          examples:
+            Spring Boot T-Shirt:
+              value: "Spring Boot"
+        - name: productType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The type of the product to acquire from the inventory
+          examples:
+            Spring Boot T-Shirt:
+              value: "T-Shirt"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  description: The quantity of the product to acquire from the inventory
+            examples:
+              Spring Boot T-Shirt:
+                value:
+                  quantity: 5
+      responses:
+        '200':
+          description: Product quantity acquired successfully
+          x-microcks-refs:
+            - 'Spring Boot T-Shirt'
+        '400':
+          description: Invalid request (e.g. insufficient quantity in stock)
+        '404':
+          description: Product not found
+components:
+  schemas:
+    InventoryResponse:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductResponse'
+    ProductResponse:
+      type: object
+      properties:
+        projectName:
+          type: string
+          description: The name of the project
+        productType:
+          type: string
+          description: The type of the product
+        quantity:
+          type: integer
+          description: The quantity of the product in stock 
+        price:
+          type: number
+          format: double
+          description: The price of the product
+        logoUrl:
+          type: string
+          description: The URL of the product's logo
