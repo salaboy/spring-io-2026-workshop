@@ -59,7 +59,11 @@ If you want to run it without `ANTHROPIC_API_KEY`, you can simulate calls to the
 mvn clean -Dspring-boot.run.jvmArguments="-Dmicrocks.enabled=true" spring-boot:test-run
 ```
 
-You can prompt for "List all items" and you should be able to see the results. 
+> [!IMPORTANT]
+> When using Microcks to simulate LLM class, you must click on **SendSync** on the UI instead of **Send**
+> (so that exchanges are not using streaming but basic request/response via the `/api/chat` endpoint). 
+
+You can prompt for **"List all items"** and you should be able to see the results. 
 
 > [!TIP]
 > Microcks mocks only respond with canned response to certain specific questions. You can check the mocks 
@@ -203,11 +207,17 @@ No other wiring is needed — Spring AI picks up every `@Tool`-annotated method 
 
 ### 2. Try it in the UI
 
-Start the application and open [http://localhost:8080](http://localhost:8080). Ask the assistant:
+Start the application and open [http://localhost:8080](http://localhost:8080). 
+You can run either via `mvn spring-boot:test-run` or `mvn -Dspring-boot.run.jvmArguments="-Dmicrocks.enabled=true" spring-boot:test-run`.
+
+Ask the assistant:
 
 - *"Show me everything under $15"* — does it pick `findItemsByPrice` instead of `listAllItems`?
 - *"What is the cheapest item you have?"* — does it combine tools to answer?
 - *"Show me items between $10 and $20"* — does it pass both bounds correctly?
+
+> [!IMPORTANT]
+> If using Microcks simualtions, click on **SendSync** on the UI instead of **Send**.
 
 ### 3. Observe the tool call in Jaeger
 
