@@ -100,12 +100,14 @@ management.tracing.sampling.probability=1.0
 | `OpenTelemetryConfiguration` | Configures OTLP trace and metrics export |
 | `TraceIdFilter` | Propagates trace context through HTTP requests |
 
-## Exercise: 
+## Exercises
+
+### Exercise T1: Mocking dependencies for faster feedback
 
 **What you will learn:** how to test an AI infused application without calling the LLM, how to validate deterministic
 parts of the code in quick feedback loop.
 
-### 1. Review the confguration
+#### 1. Review the confguration
 
 We're using Testcontainers for that. Check the `src/test/java/com/example/store/step01/ContainersConfig.java` file
 
@@ -134,9 +136,9 @@ public DynamicPropertyRegistrar properties(@Nullable MicrocksContainer microcks)
 }
 ```
 
-What happens here?
+What happened here?
 
-### 2. Complete the test
+#### 2. Complete the test
 
 Open the `src/test/java/com/example/store/step01/StoreTests.java` and complete the `testSpringAIChatMockTemplate()` method like this:
 
@@ -169,7 +171,7 @@ void testSpringAIChatMockTemplate()  {
 
 Where did this response content come from?
 
-### 3. Run the test
+#### 3. Run the test
 
 Execute this command line in your terminal:
 
@@ -177,12 +179,13 @@ Execute this command line in your terminal:
 mvn -Dspring-boot.run.jvmArguments="-Dmicrocks.enabled=true" test
 ```
 
+---
 
-## Exercise: Add a new `@Tool` and observe it in traces
+### Exercise A1: Add a new `@Tool` and observe it in traces
 
 **What you will learn:** how Spring AI registers tools, how the LLM decides which tool to call based on the description, and how each tool invocation appears as a span in Jaeger.
 
-### 1. Add the tool
+#### 1. Add the tool
 
 Open `ChatController.java` and add this method alongside the existing `@Tool` methods:
 
@@ -205,7 +208,7 @@ public String findItemsByPrice(double minPrice, double maxPrice) {
 
 No other wiring is needed — Spring AI picks up every `@Tool`-annotated method in beans registered as tools via `.defaultTools(chatController)` in `ChatRestController`.
 
-### 2. Try it in the UI
+#### 2. Try it in the UI
 
 Start the application and open [http://localhost:8080](http://localhost:8080). 
 You can run either via `mvn spring-boot:test-run` or `mvn -Dspring-boot.run.jvmArguments="-Dmicrocks.enabled=true" spring-boot:test-run`.
@@ -219,13 +222,13 @@ Ask the assistant:
 > [!IMPORTANT]
 > If using Microcks simualtions, click on **SendSync** on the UI instead of **Send**.
 
-### 3. Observe the tool call in Jaeger
+#### 3. Observe the tool call in Jaeger
 
 Run the tests to start the Jaeger container, then open [http://localhost:XXXX](http://localhost:XXXX). Select the `store` service and find a recent trace. You should see a child span named `findItemsByPrice` nested inside the main chat span.
 
 The property `spring.ai.tools.observations.include-content=true` (already set in `application.properties`) records the tool's input arguments and return value directly on that span — no extra code needed.
 
-### 4. Experiment with the description
+#### 4. Experiment with the description
 
 The `description` field is the only signal the LLM uses when deciding whether to call a tool. Try these modifications and observe how tool selection changes:
 
