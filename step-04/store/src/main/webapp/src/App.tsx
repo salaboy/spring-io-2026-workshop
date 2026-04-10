@@ -326,27 +326,27 @@ function MessageBubble({
 // ─── Mock Event button ────────────────────────────────────────────────────────
 
 function MockEventButton({ theme, counterRef }: { theme: ThemePalette; counterRef: React.MutableRefObject<number> }) {
-  const [hovered, setHovered] = useState(false)
-  const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle')
-  const isRetro = theme.name === 'retro'
+    const [hovered, setHovered] = useState(false)
+    const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle')
+    const isRetro = theme.name === 'retro'
 
-  async function handleClick() {
-    if (status === 'loading') return
-    setStatus('loading')
-    const count = ++counterRef.current
-    try {
-      const res = await fetch('/api/events/mock', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'SHIPMENT', content: `Shipment event #${count}` }),
-      })
-      setStatus(res.ok ? 'ok' : 'error')
-    } catch {
-      setStatus('error')
-    } finally {
-      setTimeout(() => setStatus('idle'), 2000)
+    async function handleClick() {
+        if (status === 'loading') return
+        setStatus('loading')
+        const count = ++counterRef.current
+        try {
+            const res = await fetch('/api/events/mock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ shipmentId: `SHIPMENT-#${count}`, status: `shipped`, statusDate: new Date().toISOString() }),
+            })
+            setStatus(res.ok ? 'ok' : 'error')
+        } catch {
+            setStatus('error')
+        } finally {
+            setTimeout(() => setStatus('idle'), 2000)
+        }
     }
-  }
 
   const label = status === 'loading' ? '...' : status === 'ok' ? '✓ Sent' : status === 'error' ? '✗ Error' : 'Mock Event'
 
@@ -588,10 +588,23 @@ export default function App() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const ws = new WebSocket(`${protocol}//${window.location.host}/ws/events`)
     ws.onmessage = (e) => {
-      try {
-        const event = JSON.parse(e.data) as { type: string; content: string }
-        toast(event.content)
-      } catch { /* ignore malformed messages */ }
+        try {
+            const event = JSON.parse(e.data) as { shipmentId: string; status: string; statusDate: string }
+            toast(
+                (t) => (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {'📦 '}
+                        {`Shipment ${event.shipmentId} is ${event.status} as of ${event.statusDate}`}
+                        <button
+                            onClick={() => toast.dismiss(t.id)}
+                            style={{ marginLeft: '8px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', lineHeight: 1 }}
+                            aria-label="Close"
+                        >✕</button>
+                    </span>
+                ),
+                { duration: 120000 }
+            )
+        } catch { /* ignore malformed messages */ }
     }
     return () => ws.close()
   }, [])

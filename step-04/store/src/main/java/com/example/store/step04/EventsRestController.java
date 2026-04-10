@@ -38,7 +38,7 @@ public class EventsRestController {
     @PostMapping("/mock")
     public void publishMockEvent(@RequestBody Event event) {
         System.out.println(">> Publishing mock event: " + event);
-        messagingTemplate.send("pubsubTopic", event);
+        messagingTemplate.send("shipments", event);
     }
 
     @PostMapping(consumes = "application/cloudevents+json")

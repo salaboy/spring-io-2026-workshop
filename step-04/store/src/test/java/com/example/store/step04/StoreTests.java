@@ -42,7 +42,7 @@ public class StoreTests {
 
         assertTrue(eventsRestController.getEvents().isEmpty());
 
-        messagingTemplate.send("pubsubTopic", new Event("SHIPPING", "Shipping of order 123 is 1km away"));
+        messagingTemplate.send("pubsubTopic", new Event("1234","SHIPPING", "Shipping of order 123 is 1km away"));
 
         await().atMost(Duration.ofSeconds(5))
                 .until(eventsRestController.getEvents()::size, equalTo(1));
