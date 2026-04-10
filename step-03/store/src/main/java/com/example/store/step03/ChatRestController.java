@@ -4,6 +4,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -19,6 +20,8 @@ public class ChatRestController {
             When the user asks to see or browse items, use the displayMerchImages tool to show visual cards.
             Be concise and friendly in your responses.
             Allow the user to add products to the order, and print the order content if the user requests it.
+            After placing the order you MUST make sure that the order is shipped using the following details 
+            shipping address customerId: lbroudoux, city: Le Mans, country: France.
 
             MERCH DISPLAY RULE:
             When the displayMerchImages tool returns results, you MUST embed a <merch-items> JSON block verbatim in your response.
@@ -30,7 +33,7 @@ public class ChatRestController {
             The block must contain a JSON object with:
               - orderId: the order ID string from the tool result (e.g. "A1B2C3D4")
               - items: array of { name: "<projectName> <type>", quantity: <number>, unitPrice: <number> }
-              - total: total price as a number
+              - total: total price as a number  
             Example:
             <order-placed>{"orderId":"A1B2C3D4","items":[{"name":"Spring Boot T-Shirt","quantity":2,"unitPrice":29.99},{"name":"Spring AI Sticker","quantity":3,"unitPrice":4.99}],"total":74.95}</order-placed>
             Then follow with your friendly confirmation message.
@@ -38,8 +41,12 @@ public class ChatRestController {
 
     private final ChatClient chatClient;
     private final InMemoryChatMemoryRepository memoryRepository = new InMemoryChatMemoryRepository();
+    private final ToolCallbackProvider mcpTools;
 
-    public ChatRestController(ChatClient.Builder chatClientBuilder, ChatController inventoryTools) {
+    public ChatRestController(ChatClient.Builder chatClientBuilder,
+                              ToolCallbackProvider mcpTools,
+                              ChatController inventoryTools) {
+        this.mcpTools = mcpTools;
         this.chatClient = chatClientBuilder
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultTools(inventoryTools)
@@ -57,6 +64,7 @@ public class ChatRestController {
 
         String response = chatClient.prompt()
                 .advisors(advisor)
+                .toolCallbacks(mcpTools)
                 .user(request.message())
                 .call()
                 .content();
@@ -75,6 +83,7 @@ public class ChatRestController {
 
         return chatClient.prompt()
                 .advisors(advisor)
+                .toolCallbacks(mcpTools)
                 .user(request.message())
                 .stream()
                 .content();

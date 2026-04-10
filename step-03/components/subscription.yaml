@@ -4,5 +4,5 @@ metadata:
   name: shipping-events-subscription
 spec:
   pubsubname: pubsub
-  topic: shipping-events
+  topic: shipments
   route: /api/events
