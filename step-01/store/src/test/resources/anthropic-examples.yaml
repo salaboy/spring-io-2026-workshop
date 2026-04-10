@@ -128,7 +128,10 @@ operations:
                 "id": "toolu_01QkiEwunvaWC2cRh22A8Zi8",
                 "type": "tool_use",
                 "name": "findItemsByPrice",
-                "input": {},
+                "input": {
+                  "minPrice": 0,
+                  "maxPrice": 15
+                },
                 "caller": {"type":"direct"}
               }
             ],
