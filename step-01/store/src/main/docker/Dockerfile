@@ -1,10 +1,8 @@
-FROM eclipse-temurin:21-jre-jammy AS build
+FROM maven:3-eclipse-temurin-21-jammy AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
-RUN --mount=type=cache,target=/root/.m2 \
-    apk add --no-cache maven && \
-    mvn -B package -DskipTests
+RUN mvn -B package -DskipTests
 
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
