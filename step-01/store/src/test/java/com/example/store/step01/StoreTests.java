@@ -16,7 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @AutoConfigureTestRestTemplate
 @SpringBootTest(classes = {TestStoreApplication.class, ContainersConfig.class},
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"microcks.enabled=true"})
 public class StoreTests {
 
     @LocalServerPort

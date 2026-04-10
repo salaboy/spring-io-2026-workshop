@@ -53,6 +53,16 @@ cd step-01/store
 mvn spring-boot:test-run
 ```
 
+
+If you want to run it without ANTHROPIC_API_KEY you run with Microcks: 
+
+```bash
+mvn clean -Dspring-boot.run.jvmArguments="-Dmicrocks.enabled=true" spring-boot:test-run
+```
+
+You can prompt for "List all items" and you should be able to see the results. 
+
+
 ## Key configuration
 
 `src/main/resources/application.properties`:

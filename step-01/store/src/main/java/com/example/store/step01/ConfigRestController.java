@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ConfigRestController {
 
-    @Value("${store.test-mode:false}")
+    @Value("${microcks.enabled:false}")
     private boolean testMode;
 
     @GetMapping("/api/config")
