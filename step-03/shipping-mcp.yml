@@ -30,6 +30,9 @@ services:
     environment:
       - DAPR_HOST=dapr-shipping # Dapr sidecar host
       - DAPR_PORT=50001 # Dapr sidecar port 
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_SERVICE_NAME=shipping
+      - OTEL_TRACES_EXPORTER=otlp
     restart: on-failure
     
   postgres:
