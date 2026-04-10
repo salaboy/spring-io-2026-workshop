@@ -147,7 +147,7 @@
                         <goals><goal>install-node-and-npm</goal></goals>
                         <phase>initialize</phase>
                         <configuration>
-                            <nodeVersion>v22.14.0</nodeVersion>
+                            <nodeVersion>v22.9.0</nodeVersion>
                             <npmVersion>10.9.2</npmVersion>
                         </configuration>
                     </execution>
