@@ -93,11 +93,7 @@ management.tracing.sampling.probability=1.0
 | `OpenTelemetryConfiguration` | Configures OTLP trace and metrics export |
 | `TraceIdFilter` | Propagates trace context through HTTP requests |
 
-## Next step
 
-Proceed to [Step 2: MCP Tools and API Integrations](../step-02/README.md) to connect the store to a real warehouse service via the Model Context Protocol.
-
----
 
 ## Exercise: Add a new `@Tool` and observe it in traces
 
@@ -149,3 +145,9 @@ The `description` field is the only signal the LLM uses when deciding whether to
 - Add a conflicting instruction: `"Never use this for single-item lookups"` — does the model respect it?
 
 This shows that prompt engineering applies to tools just as much as to system prompts.
+
+---
+
+## Next step
+
+Proceed to [Step 2: MCP Tools and API Integrations](../step-02/README.md) to connect the store to a real warehouse service via the Model Context Protocol.
