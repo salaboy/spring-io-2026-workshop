@@ -45,7 +45,7 @@ Open your browser at [http://localhost:8080](http://localhost:8080).
 
 ## Running in dev (test) mode
 
-The test suite uses Testcontainers to start Jaeger (for OTEL trace collection) and Microcks (for API contract validation). Docker must be running.
+The test suite uses Testcontainers to start Jaeger (for OTEL trace collection). Docker must be running.
 
 ```bash
 cd step-01/store
@@ -53,14 +53,17 @@ cd step-01/store
 mvn spring-boot:test-run
 ```
 
-
-If you want to run it without ANTHROPIC_API_KEY you run with Microcks: 
+If you want to run it without `ANTHROPIC_API_KEY`, you can simulate calls to the LLMC using with Microcks: 
 
 ```bash
 mvn clean -Dspring-boot.run.jvmArguments="-Dmicrocks.enabled=true" spring-boot:test-run
 ```
 
 You can prompt for "List all items" and you should be able to see the results. 
+
+> [!TIP]
+> Microcks mocks only respond with canned response to certain specific questions. You can check the mocks 
+> configuration by having a look at the `src/test/resources` folder.
 
 
 ## Key configuration
@@ -93,6 +96,82 @@ management.tracing.sampling.probability=1.0
 | `OpenTelemetryConfiguration` | Configures OTLP trace and metrics export |
 | `TraceIdFilter` | Propagates trace context through HTTP requests |
 
+## Exercise: 
+
+**What you will learn:** how to test an AI infused application without calling the LLM, how to validate deterministic
+parts of the code in quick feedback loop.
+
+### 1. Review the confguration
+
+We're using Testcontainers for that. Check the `src/test/java/com/example/store/step01/ContainersConfig.java` file
+
+Check this code block:
+
+```java
+@Bean
+@ConditionalOnProperty(name = "microcks.enabled", havingValue = "true")
+MicrocksContainer microcks(Network network) {
+    return new MicrocksContainer("quay.io/microcks/microcks-uber:1.13.2-native")
+        .withNetwork(network)
+        .withMainArtifacts("anthropic-openapi.yaml")
+        .withSecondaryArtifacts("anthropic-metadata.yaml", "anthropic-examples.yaml")
+        .withEnv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://jaeger:4317")
+        .withEnv("OTEL_TRACES_EXPORTER", "otlp")
+        .withDebugLogLevel();
+}
+
+@Bean
+public DynamicPropertyRegistrar properties(@Nullable MicrocksContainer microcks) {
+    return (registrar) -> {
+        if (microcks != null) {
+            registrar.add("spring.ai.anthropic.base-url", () -> microcks.getRestMockEndpoint("Anthropic API", "0.83.0"));
+        }
+    };
+}
+```
+
+What happens here?
+
+### 2. Complete the test
+
+Open the `src/test/java/com/example/store/step01/StoreTests.java` and complete the `testSpringAIChatMockTemplate()` method like this:
+
+```java
+@Test
+void testSpringAIChatMockTemplate()  {
+    // Call the /api/chat endpoint with a message asking to list all products in the inventory, and check that the response contains the expected product information
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+
+    HttpEntity<String> requestEntity = new HttpEntity<>("""
+            {
+                "conversationId": "abc",
+                "message": "List all the products in the inventory"
+            }
+        """, headers);
+
+    ResponseEntity<String> response = restTemplate.postForEntity("/api/chat", requestEntity, String.class);
+
+    String body = response.getBody();
+
+    // Assert that the response contains the expected product information.
+    assertNotNull(body);
+    assertTrue(body.contains("**Spring Boot**- T-Shirt: 50 units @ $29.99"));
+    assertTrue(body.contains("Socks: 100 units @ $12.99"));
+    assertTrue(body.contains("Sticker: 200 units @ $4.99"));
+    assertTrue(body.contains("**Spring AI**- T-Shirt: 30 units @ $29.99"));
+}
+```
+
+Where did this response content come from?
+
+### 3. Run the test
+
+Execute this command line in your terminal:
+
+```bash
+mvn -Dspring-boot.run.jvmArguments="-Dmicrocks.enabled=true" test
+```
 
 
 ## Exercise: Add a new `@Tool` and observe it in traces
