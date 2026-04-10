@@ -575,6 +575,7 @@ export default function App() {
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [orderDelivered, setOrderDelivered] = useState(false)
   const [conversationId] = useState(() => crypto.randomUUID())
   const bottomRef = useRef<HTMLDivElement>(null)
   const mockEventCounter = useRef(0)
@@ -617,6 +618,25 @@ export default function App() {
 
   function toggleTheme() {
     setThemeName(t => t === 'modern' ? 'retro' : 'modern')
+  }
+
+  async function confirmOrderDelivered(orderId: string) {
+    if (loading || orderDelivered) return
+    setLoading(true)
+    try {
+      const res = await fetch('/api/workflows/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: orderId,
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      setOrderDelivered(true)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error'
+      toast.error(`Failed to confirm delivery: ${msg}`)
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function sendMessage(overrideText?: string) {
@@ -803,7 +823,55 @@ export default function App() {
 
   // ── Input area ────────────────────────────────────────────────────────────
 
-  const inputArea = isRetro ? (
+  const placedOrder = messages.reduce<OrderPlaced | null>((found, m) => {
+    if (found || m.role !== 'assistant') return found
+    return extractOrderPlaced(m.content).order
+  }, null)
+
+  const inputArea = placedOrder ? (
+    isRetro ? (
+      <div style={{
+        display: 'flex', justifyContent: 'center', padding: '8px 10px',
+        background: '#c0c0c0', flexShrink: 0,
+        borderTop: '1px solid #ffffff',
+      }}>
+        <button
+          onClick={() => confirmOrderDelivered(placedOrder.orderId)}
+          disabled={loading || orderDelivered}
+          style={{
+            border: '2px solid',
+            borderColor: loading || orderDelivered ? '#808080 #ffffff #ffffff #808080' : '#ffffff #808080 #808080 #ffffff',
+            background: '#c0c0c0', padding: '6px 24px',
+            color: loading || orderDelivered ? '#808080' : '#000000',
+            cursor: loading || orderDelivered ? 'not-allowed' : 'pointer',
+            fontSize: '13px', fontWeight: 'bold', fontFamily: theme.font,
+          }}
+        >
+          {orderDelivered ? 'Order Completed - Thanks!' : 'Confirm Order Delivered'}
+        </button>
+      </div>
+    ) : (
+      <div style={{
+        display: 'flex', justifyContent: 'center', padding: '12px 16px',
+        borderTop: `1px solid ${theme.border}`, background: theme.surface, flexShrink: 0,
+      }}>
+        <button
+          onClick={() => confirmOrderDelivered(placedOrder.orderId)}
+          disabled={loading || orderDelivered}
+          style={{
+            padding: '10px 28px',
+            background: theme.primary, color: theme.primaryText,
+            border: 'none', borderRadius: '8px',
+            cursor: loading || orderDelivered ? 'not-allowed' : 'pointer',
+            opacity: loading || orderDelivered ? 0.6 : 1,
+            fontSize: '14px', fontWeight: 'bold', fontFamily: theme.font,
+          }}
+        >
+          {orderDelivered ? 'Order Completed - Thanks!' : 'Confirm Order Delivered'}
+        </button>
+      </div>
+    )
+  ) : isRetro ? (
     <div style={{
       display: 'flex', gap: '6px', padding: '8px 10px',
       background: '#c0c0c0', flexShrink: 0, alignItems: 'center',

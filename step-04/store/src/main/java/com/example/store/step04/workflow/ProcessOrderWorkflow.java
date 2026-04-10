@@ -14,10 +14,9 @@ public class ProcessOrderWorkflow implements Workflow {
 
     private static final Logger log = LoggerFactory.getLogger(ProcessOrderWorkflow.class);
 
-    // External event names
-    public static final String FETCH_ITEMS_EVENT = "fetch-items";
-    public static final String CONFIRM_ORDER_EVENT = "confirm-order";
-    public static final String ITEMS_SHIPPED_EVENT = "items-shipped";
+
+    public static final String CONFIRM_ORDER_DELIVERED_EVENT = "confirm-order-delivered";
+
 
     @Override
     public WorkflowStub create() {
@@ -52,13 +51,13 @@ public class ProcessOrderWorkflow implements Workflow {
             ).await();
             log.info("Step 3 complete - shipment requested, trackingId: {}", trackingId);
 
-//            // Wait for external event confirming items were shipped
-//            log.info("Waiting for '{}' event for order: {}", ITEMS_SHIPPED_EVENT, order.orderId());
-//            String shippingConfirmation = ctx.waitForExternalEvent(ITEMS_SHIPPED_EVENT, String.class).await();
-//            log.info("'{}' event received for order: {}, confirmation: {}", ITEMS_SHIPPED_EVENT, order.orderId(), shippingConfirmation);
+            // Wait for external event confirming items were shipped
+            log.info("Waiting for '{}' event for order: {}", CONFIRM_ORDER_DELIVERED_EVENT, order.orderId());
+            String shippingConfirmation = ctx.waitForExternalEvent(CONFIRM_ORDER_DELIVERED_EVENT, String.class).await();
+            log.info("'{}' event received for order: {}, confirmation: {}", CONFIRM_ORDER_DELIVERED_EVENT, order.orderId(), shippingConfirmation);
 
             log.info("ProcessOrderWorkflow completed for order: {}", order.orderId());
-            ctx.complete("Order processed successfully!");
+            ctx.complete(order.orderId() + " - Order processed successfully and items shipped!");
         };
     }
 }
