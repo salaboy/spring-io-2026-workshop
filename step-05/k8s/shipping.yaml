@@ -19,7 +19,7 @@ spec:
         dapr.io/config: "tracing"
         dapr.io/env: "OTEL_SERVICE_NAME=shipping-dapr"
         instrumentation.opentelemetry.io/inject-go: "opentelemetry/instrumentation"
-        instrumentation.opentelemetry.io/otel-go-auto-target-exe: "/shipping"
+        instrumentation.opentelemetry.io/otel-go-auto-target-exe: "/app/shipping"
     spec:
       containers:
         - name: shipping

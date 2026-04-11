@@ -24,6 +24,16 @@ if (-not $env:ANTHROPIC_API_KEY) {
 }
 Write-Info "ANTHROPIC_API_KEY is set."
 
+# ─── Check Docker is available (required by kind) ────────────────────────────
+if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
+    Write-Err "Docker is not installed or not on PATH. Install Docker Desktop from https://www.docker.com/products/docker-desktop/ and retry."
+}
+$dockerInfo = docker info 2>$null
+if ($LASTEXITCODE -ne 0) {
+    Write-Err "Docker daemon is not running. Please start Docker Desktop and retry."
+}
+Write-Info "Docker is available."
+
 # ─── Detect arch ─────────────────────────────────────────────────────────────
 $arch = if ($env:PROCESSOR_ARCHITECTURE -eq "AMD64" -or $env:PROCESSOR_ARCHITEW6432 -eq "AMD64") { "amd64" } else { "arm64" }
 
@@ -65,10 +75,37 @@ if ($kindCmd) {
     Write-Info "kind version: $(& $kindDest version)"
 }
 
-# ─── Verify kubectl ───────────────────────────────────────────────────────────
-if (-not (Get-Command kubectl -ErrorAction SilentlyContinue)) {
-    Write-Warn "kubectl not found. kind needs kubectl to interact with the cluster."
-    Write-Warn "Install kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/"
+# ─── Install kubectl if missing ──────────────────────────────────────────────
+if (Get-Command kubectl -ErrorAction SilentlyContinue) {
+    Write-Info "kubectl already installed: $(kubectl version --client --short 2>$null)"
+} else {
+    Write-Info "kubectl not found — installing..."
+
+    $kubectlVersion = (Invoke-WebRequest -Uri "https://dl.k8s.io/release/stable.txt" -UseBasicParsing).Content.Trim()
+    $kubectlUrl     = "https://dl.k8s.io/release/$kubectlVersion/bin/windows/$arch/kubectl.exe"
+
+    $pathDirs = $env:PATH -split ";"
+    $writableDir = $pathDirs | Where-Object { $_ -and (Test-Path $_) } |
+                   Where-Object { try { [System.IO.File]::Create("$_\.kubectltest").Close(); Remove-Item "$_\.kubectltest"; $true } catch { $false } } |
+                   Select-Object -First 1
+
+    if (-not $writableDir) {
+        $writableDir = "$env:USERPROFILE\.local\bin"
+        New-Item -ItemType Directory -Force -Path $writableDir | Out-Null
+        $env:PATH = "$writableDir;$env:PATH"
+        [System.Environment]::SetEnvironmentVariable(
+            "PATH",
+            "$writableDir;" + [System.Environment]::GetEnvironmentVariable("PATH", "User"),
+            "User"
+        )
+        Write-Warn "Added $writableDir to user PATH. Restart your shell if kubectl is not found later."
+    }
+
+    $kubectlDest = Join-Path $writableDir "kubectl.exe"
+    Write-Info "Downloading kubectl $kubectlVersion from $kubectlUrl ..."
+    Invoke-WebRequest -Uri $kubectlUrl -OutFile $kubectlDest -UseBasicParsing
+    Write-Info "kubectl installed to $kubectlDest"
+    Write-Info "kubectl version: $(& $kubectlDest version --client --short 2>$null)"
 }
 
 # ─── Install helm if missing ─────────────────────────────────────────────────

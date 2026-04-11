@@ -12,6 +12,15 @@ if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
 fi
 info "ANTHROPIC_API_KEY is set."
 
+# ─── Check Docker is available (required by kind) ────────────────────────────
+if ! command -v docker &>/dev/null; then
+  error "Docker is not installed or not on PATH. Install Docker Desktop from https://www.docker.com/products/docker-desktop/ and retry."
+fi
+if ! docker info &>/dev/null; then
+  error "Docker daemon is not running. Please start Docker Desktop and retry."
+fi
+info "Docker is available: $(docker version --format '{{.Server.Version}}' 2>/dev/null || echo 'running')"
+
 # ─── Detect OS / arch ────────────────────────────────────────────────────────
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 ARCH="$(uname -m)"
@@ -59,10 +68,41 @@ else
   info "kind installed: $(kind version)"
 fi
 
-# ─── Verify kubectl is available (required by kind) ──────────────────────────
-if ! command -v kubectl &>/dev/null; then
-  warn "kubectl not found. kind needs kubectl to interact with the cluster."
-  warn "Install kubectl: https://kubernetes.io/docs/tasks/tools/"
+# ─── Install kubectl if missing ──────────────────────────────────────────────
+install_kubectl() {
+  info "kubectl not found — installing..."
+  KUBECTL_VERSION="$(curl -fsSL https://dl.k8s.io/release/stable.txt)"
+  KUBECTL_URL="https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/${OS}/${ARCH}/kubectl"
+  DEST="/usr/local/bin/kubectl"
+
+  if command -v curl &>/dev/null; then
+    curl -fsSL "$KUBECTL_URL" -o /tmp/kubectl
+  elif command -v wget &>/dev/null; then
+    wget -qO /tmp/kubectl "$KUBECTL_URL"
+  else
+    error "Neither curl nor wget is available. Please install one and retry."
+  fi
+
+  chmod +x /tmp/kubectl
+
+  if mv /tmp/kubectl "$DEST" 2>/dev/null; then
+    info "kubectl installed to $DEST"
+  elif command -v sudo &>/dev/null; then
+    sudo mv /tmp/kubectl "$DEST"
+    info "kubectl installed to $DEST (via sudo)"
+  else
+    mkdir -p "$HOME/.local/bin"
+    mv /tmp/kubectl "$HOME/.local/bin/kubectl"
+    export PATH="$HOME/.local/bin:$PATH"
+    warn "kubectl installed to ~/.local/bin/kubectl — ensure this is on your PATH"
+  fi
+}
+
+if command -v kubectl &>/dev/null; then
+  info "kubectl already installed: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
+else
+  install_kubectl
+  info "kubectl installed: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
 fi
 
 # ─── Install helm if missing ─────────────────────────────────────────────────
