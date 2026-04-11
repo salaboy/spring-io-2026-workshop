@@ -1,10 +1,13 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Installs kind (Kubernetes in Docker) and Dapr 1.17 via Helm.
+  Installs kind, Dapr 1.17, Kafka, and PostgreSQL via Helm.
 .DESCRIPTION
   - Checks whether kind is installed; downloads and installs it if not.
+  - Creates a kind cluster named 'workshop'.
   - Installs Dapr 1.17.0 using Helm into the dapr-system namespace.
+  - Installs Kafka (Bitnami OCI chart) with a 'shipments' topic.
+  - Installs PostgreSQL (Bitnami OCI chart) with initdb config map.
   Run with: powershell -ExecutionPolicy Bypass -File setup.ps1
 #>
 
@@ -14,6 +17,12 @@ $ErrorActionPreference = "Stop"
 function Write-Info  { param($msg) Write-Host "[INFO]  $msg" -ForegroundColor Cyan }
 function Write-Warn  { param($msg) Write-Host "[WARN]  $msg" -ForegroundColor Yellow }
 function Write-Err   { param($msg) Write-Host "[ERROR] $msg" -ForegroundColor Red; exit 1 }
+
+# ─── Check required environment variables ────────────────────────────────────
+if (-not $env:ANTHROPIC_API_KEY) {
+    Write-Err "ANTHROPIC_API_KEY is not set. Please set `$env:ANTHROPIC_API_KEY = '<your-key>' and retry."
+}
+Write-Info "ANTHROPIC_API_KEY is set."
 
 # ─── Detect arch ─────────────────────────────────────────────────────────────
 $arch = if ($env:PROCESSOR_ARCHITECTURE -eq "AMD64" -or $env:PROCESSOR_ARCHITEW6432 -eq "AMD64") { "amd64" } else { "arm64" }
@@ -62,11 +71,45 @@ if (-not (Get-Command kubectl -ErrorAction SilentlyContinue)) {
     Write-Warn "Install kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/"
 }
 
-# ─── Verify helm ─────────────────────────────────────────────────────────────
-if (-not (Get-Command helm -ErrorAction SilentlyContinue)) {
-    Write-Err "helm not found. Install Helm first: https://helm.sh/docs/intro/install/"
+# ─── Install helm if missing ─────────────────────────────────────────────────
+if (Get-Command helm -ErrorAction SilentlyContinue) {
+    Write-Info "helm already installed: $(helm version --short)"
+} else {
+    Write-Info "helm not found — installing..."
+
+    $helmInstallScript = "$env:TEMP\get-helm.ps1"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3.ps1" `
+        -OutFile $helmInstallScript -UseBasicParsing
+    & $helmInstallScript
+    Remove-Item $helmInstallScript -Force
+
+    if (Get-Command helm -ErrorAction SilentlyContinue) {
+        Write-Info "helm installed: $(helm version --short)"
+    } else {
+        Write-Err "helm installation failed. Please install manually: https://helm.sh/docs/intro/install/"
+    }
 }
-Write-Info "helm found: $(helm version --short)"
+
+# ─── Create kind cluster ─────────────────────────────────────────────────────
+$clusterName = "workshop"
+
+$existingClusters = kind get clusters 2>$null
+if ($existingClusters -split "`n" | Where-Object { $_.Trim() -eq $clusterName }) {
+    Write-Info "kind cluster '$clusterName' already exists — skipping creation."
+} else {
+    Write-Info "Creating kind cluster '$clusterName'..."
+    kind create cluster --name $clusterName --wait 60s
+    Write-Info "kind cluster '$clusterName' created."
+}
+
+kubectl cluster-info --context "kind-$clusterName"
+
+# ─── Create Anthropic API key secret ─────────────────────────────────────────
+Write-Info "Creating anthropic-secret in namespace 'default'..."
+kubectl create secret generic anthropic-secret `
+    --from-literal=api-key="$env:ANTHROPIC_API_KEY" `
+    --dry-run=client -o yaml | kubectl apply -f -
+Write-Info "anthropic-secret created successfully."
 
 # ─── Install Dapr 1.17 via Helm ──────────────────────────────────────────────
 $daprVersion   = "1.17.0"
@@ -86,3 +129,41 @@ helm upgrade --install dapr dapr/dapr `
 
 Write-Info "Dapr $daprVersion installed successfully."
 helm list -n $daprNamespace
+
+# ─── Install Kafka via Helm (Bitnami) ────────────────────────────────────────
+Write-Info "Adding / updating Bitnami Helm repo..."
+helm repo add bitnami https://charts.bitnami.com/bitnami 2>$null
+helm repo update bitnami
+
+Write-Info "Installing Kafka in namespace 'default'..."
+helm upgrade --install kafka oci://registry-1.docker.io/bitnamicharts/kafka --version 22.1.5 `
+    --set "provisioning.topics[0].name=shipments" `
+    --set "provisioning.topics[0].partitions=1" `
+    --set "persistence.size=1Gi" `
+    --set "image.repository=bitnamilegacy/kafka" `
+    --wait `
+    --timeout 5m
+
+Write-Info "Kafka installed successfully."
+
+kubectl apply -f k8s/init-db-cm.yaml
+
+# ─── Install PostgreSQL via Helm (Bitnami) ───────────────────────────────────
+Write-Info "Installing PostgreSQL in namespace 'default'..."
+helm upgrade --install postgresql oci://registry-1.docker.io/bitnamicharts/postgresql --version 12.5.7 `
+    --set "image.debug=true" `
+    --set "primary.initdb.user=postgres" `
+    --set "primary.initdb.password=postgres" `
+    --set "global.postgresql.auth.postgresPassword=postgres" `
+    --set "primary.persistence.size=1Gi" `
+    --set "primary.initdb.scriptsConfigMap=init-db" `
+    --set "image.repository=bitnamilegacy/postgresql" `
+    --wait `
+    --timeout 5m
+
+Write-Info "PostgreSQL installed successfully."
+helm list
+
+# ─── Run observability setup ──────────────────────────────────────────────────
+Write-Info "Running observability setup..."
+& "$PSScriptRoot\setup-observability.ps1"

@@ -6,6 +6,12 @@ info()  { echo "[INFO]  $*"; }
 warn()  { echo "[WARN]  $*"; }
 error() { echo "[ERROR] $*" >&2; exit 1; }
 
+# ─── Check required environment variables ────────────────────────────────────
+if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
+  error "ANTHROPIC_API_KEY is not set. Please export ANTHROPIC_API_KEY=<your-key> and retry."
+fi
+info "ANTHROPIC_API_KEY is set."
+
 # ─── Detect OS / arch ────────────────────────────────────────────────────────
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 ARCH="$(uname -m)"
@@ -59,11 +65,45 @@ if ! command -v kubectl &>/dev/null; then
   warn "Install kubectl: https://kubernetes.io/docs/tasks/tools/"
 fi
 
-# ─── Verify helm is available ────────────────────────────────────────────────
-if ! command -v helm &>/dev/null; then
-  error "helm not found. Install Helm first: https://helm.sh/docs/intro/install/"
+# ─── Install helm if missing ─────────────────────────────────────────────────
+install_helm() {
+  info "helm not found — installing..."
+
+  if command -v curl &>/dev/null; then
+    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  elif command -v wget &>/dev/null; then
+    wget -qO- https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  else
+    error "Neither curl nor wget is available. Please install one and retry."
+  fi
+}
+
+if command -v helm &>/dev/null; then
+  info "helm already installed: $(helm version --short)"
+else
+  install_helm
+  info "helm installed: $(helm version --short)"
 fi
-info "helm found: $(helm version --short)"
+
+# ─── Create kind cluster ─────────────────────────────────────────────────────
+CLUSTER_NAME="workshop"
+
+if kind get clusters 2>/dev/null | grep -q "^${CLUSTER_NAME}$"; then
+  info "kind cluster '${CLUSTER_NAME}' already exists — skipping creation."
+else
+  info "Creating kind cluster '${CLUSTER_NAME}'..."
+  kind create cluster --name "${CLUSTER_NAME}" --wait 60s
+  info "kind cluster '${CLUSTER_NAME}' created."
+fi
+
+kubectl cluster-info --context "kind-${CLUSTER_NAME}"
+
+# ─── Create Anthropic API key secret ─────────────────────────────────────────
+info "Creating anthropic-secret in namespace 'default'..."
+kubectl create secret generic anthropic-secret \
+  --from-literal=api-key="${ANTHROPIC_API_KEY}" \
+  --dry-run=client -o yaml | kubectl apply -f -
+info "anthropic-secret created successfully."
 
 # ─── Install Dapr 1.17 via Helm ──────────────────────────────────────────────
 DAPR_VERSION="1.17.0"
@@ -83,3 +123,30 @@ helm upgrade --install dapr dapr/dapr \
 
 info "Dapr ${DAPR_VERSION} installed successfully."
 helm list -n "${DAPR_NAMESPACE}"
+
+# ─── Install Kafka via Helm (Bitnami) ────────────────────────────────────────
+info "Adding / updating Bitnami Helm repo..."
+helm repo add bitnami https://charts.bitnami.com/bitnami 2>/dev/null || true
+helm repo update bitnami
+
+info "Installing Kafka in namespace 'default'..."
+helm upgrade --install kafka oci://registry-1.docker.io/bitnamicharts/kafka --version 22.1.5 --set "provisioning.topics[0].name=shipments" --set "provisioning.topics[0].partitions=1" --set "persistence.size=1Gi" --set "image.repository=bitnamilegacy/kafka" \
+  --wait \
+  --timeout 5m
+
+info "Kafka installed successfully."
+
+kubectl apply -f k8s/init-db-cm.yaml
+
+# ─── Install PostgreSQL via Helm (Bitnami) ───────────────────────────────────
+info "Installing PostgreSQL in namespace 'default'..."
+helm upgrade --install postgresql oci://registry-1.docker.io/bitnamicharts/postgresql --version 12.5.7 --set "image.debug=true" --set "primary.initdb.user=postgres" --set "primary.initdb.password=postgres" --set "global.postgresql.auth.postgresPassword=postgres" --set "primary.persistence.size=1Gi" --set "primary.initdb.scriptsConfigMap=init-db" --set "image.repository=bitnamilegacy/postgresql" \
+  --wait \
+  --timeout 5m
+
+info "PostgreSQL installed successfully."
+helm list
+
+# ─── Run observability setup ──────────────────────────────────────────────────
+info "Running observability setup..."
+bash "$(dirname "${BASH_SOURCE[0]}")/setup-observability.sh"

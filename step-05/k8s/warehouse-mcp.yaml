@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: warehouse-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: warehouse-mcp
+  template:
+    metadata:
+      labels:
+        app: warehouse-mcp
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: "opentelemetry/instrumentation"  
+    spec:
+      containers:
+        - name: warehouse-mcp
+          image: ghcr.io/salaboy/springio-warehouse-mcp:step-02
+          ports:
+            - containerPort: 8087
+          env:
+            - name: APPLICATION_WAREHOUSE_BASE_URL
+              value: "http://warehouse:8086"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: warehouse-mcp
+spec:
+  selector:
+    app: warehouse-mcp
+  ports:
+    - port: 8087
+      targetPort: 8087
+  type: ClusterIP

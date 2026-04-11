@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shipping
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shipping
+  template:
+    metadata:
+      labels:
+        app: shipping
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "shipping"
+        dapr.io/app-port: "9091"
+        dapr.io/app-protocol: "grpc"
+        dapr.io/config: "tracing"
+        dapr.io/env: "OTEL_SERVICE_NAME=shipping-dapr"
+        instrumentation.opentelemetry.io/inject-go: "opentelemetry/instrumentation"
+        instrumentation.opentelemetry.io/otel-go-auto-target-exe: "/shipping"
+    spec:
+      containers:
+        - name: shipping
+          image: ghcr.io/salaboy/springio-shipping:step-04
+          ports:
+            - containerPort: 9091
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shipping
+spec:
+  selector:
+    app: shipping
+  ports:
+    - port: 9091
+      targetPort: 9091
+  type: ClusterIP

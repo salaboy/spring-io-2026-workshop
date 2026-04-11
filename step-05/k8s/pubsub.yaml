@@ -7,6 +7,6 @@ spec:
   version: v1
   metadata:
   - name: brokers
-    value: kafka:19092
+    value: kafka:9092
   - name: authType
     value: none
