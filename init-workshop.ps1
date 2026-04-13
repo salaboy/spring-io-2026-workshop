@@ -21,6 +21,14 @@ $scriptDir  = Split-Path -Parent $MyInvocation.MyCommand.Path
 $step05Dir  = Join-Path $scriptDir "step-05"
 $imagesFile = Join-Path $step05Dir "downloaded-images.txt"
 
+# ─── Pre-fetch Maven dependencies ────────────────────────────────────────────
+Write-Info "Pre-fetching Maven dependencies from step-01/store..."
+Push-Location (Join-Path $scriptDir "step-01\store")
+.\mvnw.cmd clean install -DskipTests
+Pop-Location
+Write-Info "Maven dependencies fetched successfully."
+
+
 # ─── Check Java ───────────────────────────────────────────────────────────────
 if (-not (Get-Command java -ErrorAction SilentlyContinue)) {
     Write-Warn "Java is not installed or not on PATH. Java 21+ is required to build the workshop projects."
@@ -199,12 +207,5 @@ Set-Content -Path $imagesFile -Value $unique
 $count = ($unique | Measure-Object).Count
 Write-Info ""
 Write-Info "Done. $count images saved to $imagesFile"
-
-# ─── Pre-fetch Maven dependencies ────────────────────────────────────────────
-Write-Info "Pre-fetching Maven dependencies from step-01/store..."
-Push-Location (Join-Path $scriptDir "step-01\store")
-.\mvnw.cmd clean install -DskipTests
-Pop-Location
-Write-Info "Maven dependencies fetched successfully."
 
 Write-Info "Run step-05/setup.ps1 to create the kind cluster — it will load these images automatically."
