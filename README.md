@@ -46,15 +46,6 @@ Required for all Spring Boot services.
 
 Verify: `java -version`
 
-### Maven
-
-Used to build and run the Spring Boot projects.
-
-- **macOS:** `brew install maven`
-- **All platforms:** Download from [maven.apache.org](https://maven.apache.org/download.cgi)
-
-Verify: `mvn -version`
-
 ### Docker (with Docker Compose)
 
 Used to run infrastructure services (Jaeger, Kafka, PostgreSQL, Dapr sidecars) during tests and local development.

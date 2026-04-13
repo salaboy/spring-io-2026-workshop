@@ -18,12 +18,23 @@ cd "$SCRIPT_DIR"
 info "Maven dependencies fetched successfully."
 
 
+# ─── Check Java ──────────────────────────────────────────────────────────────
+if ! command -v java &>/dev/null; then
+  warn "Java is not installed or not on PATH. Java 21+ is required to build the workshop projects."
+else
+  java_version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | cut -d'.' -f1)
+  if [ "$java_version" -lt 21 ] 2>/dev/null; then
+    warn "Java $java_version detected. Java 21 or greater is required for this workshop."
+  else
+    info "Java $java_version detected — OK."
+  fi
+fi
+
 # ─── Check Docker ────────────────────────────────────────────────────────────
 if ! command -v docker &>/dev/null; then
-  error "Docker is not installed or not on PATH."
-fi
-if ! docker info &>/dev/null; then
-  error "Docker daemon is not running. Please start Docker Desktop and retry."
+  warn "Docker is not installed or not on PATH. Docker is required to pull and run images."
+else
+  info "Docker is available."
 fi
 
 # ─── Install helm if missing ─────────────────────────────────────────────────

@@ -21,15 +21,29 @@ $scriptDir  = Split-Path -Parent $MyInvocation.MyCommand.Path
 $step05Dir  = Join-Path $scriptDir "step-05"
 $imagesFile = Join-Path $step05Dir "downloaded-images.txt"
 
+# ─── Check Java ───────────────────────────────────────────────────────────────
+if (-not (Get-Command java -ErrorAction SilentlyContinue)) {
+    Write-Warn "Java is not installed or not on PATH. Java 21+ is required to build the workshop projects."
+} else {
+    $javaVersionOutput = java -version 2>&1 | Select-String 'version'
+    if ($javaVersionOutput -match '"(\d+)') {
+        $javaMajor = [int]$Matches[1]
+        if ($javaMajor -lt 21) {
+            Write-Warn "Java $javaMajor detected. Java 21 or greater is required for this workshop."
+        } else {
+            Write-Info "Java $javaMajor detected — OK."
+        }
+    } else {
+        Write-Warn "Could not determine Java version. Java 21+ is required for this workshop."
+    }
+}
+
 # ─── Check Docker ─────────────────────────────────────────────────────────────
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-    Write-Err "Docker is not installed or not on PATH."
+    Write-Warn "Docker is not installed or not on PATH. Docker is required to pull and run images."
+} else {
+    Write-Info "Docker is available."
 }
-docker info 2>$null | Out-Null
-if ($LASTEXITCODE -ne 0) {
-    Write-Err "Docker daemon is not running. Please start Docker Desktop and retry."
-}
-Write-Info "Docker is available."
 
 # ─── Install helm if missing ──────────────────────────────────────────────────
 if (Get-Command helm -ErrorAction SilentlyContinue) {
