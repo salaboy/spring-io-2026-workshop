@@ -138,6 +138,28 @@ fi
 
 kubectl cluster-info --context "kind-${CLUSTER_NAME}"
 
+# ─── Load pre-pulled images into kind (if init-workshop.sh was run first) ─────
+IMAGES_FILE="$(dirname "${BASH_SOURCE[0]}")/downloaded-images.txt"
+if [[ -f "$IMAGES_FILE" ]] && [[ -s "$IMAGES_FILE" ]]; then
+  info "Loading pre-pulled images into kind cluster '${CLUSTER_NAME}'..."
+  while IFS= read -r img; do
+    [[ -z "$img" ]] && continue
+    # Normalise: strip docker.io/ prefix so Docker can find the image locally
+    local_img="${img#docker.io/}"
+    if ! docker image inspect "$local_img" &>/dev/null && ! docker image inspect "$img" &>/dev/null; then
+      warn "  $img not found in local Docker cache — will be pulled at deploy time"
+      continue
+    fi
+    info "  Loading $img"
+    kind load docker-image "$local_img" --name "${CLUSTER_NAME}" \
+      || kind load docker-image "$img" --name "${CLUSTER_NAME}" \
+      || warn "  Could not load $img — it will be pulled at deploy time"
+  done < "$IMAGES_FILE"
+  info "Image loading complete."
+else
+  info "No downloaded-images.txt found — run init-workshop.sh first to pre-load images."
+fi
+
 # ─── Create Anthropic API key secret ─────────────────────────────────────────
 info "Creating anthropic-secret in namespace 'default'..."
 kubectl create secret generic anthropic-secret \

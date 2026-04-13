@@ -141,6 +141,34 @@ if ($existingClusters -split "`n" | Where-Object { $_.Trim() -eq $clusterName })
 
 kubectl cluster-info --context "kind-$clusterName"
 
+# ─── Load pre-pulled images into kind (if init-workshop.ps1 was run first) ────
+$imagesFile = Join-Path $PSScriptRoot "downloaded-images.txt"
+if ((Test-Path $imagesFile) -and (Get-Item $imagesFile).Length -gt 0) {
+    Write-Info "Loading pre-pulled images into kind cluster '$clusterName'..."
+    Get-Content $imagesFile | Where-Object { $_.Trim() -ne '' } | ForEach-Object {
+        $img = $_.Trim()
+        # Normalise: strip docker.io/ prefix so Docker can find the image locally
+        $localImg = $img -replace '^docker\.io/', ''
+        $inspectLocal = docker image inspect $localImg 2>$null
+        $inspectFull  = docker image inspect $img      2>$null
+        if ($LASTEXITCODE -ne 0 -and -not $inspectLocal) {
+            Write-Warn "  $img not found in local Docker cache — will be pulled at deploy time"
+            return
+        }
+        Write-Info "  Loading $img"
+        kind load docker-image $localImg --name $clusterName
+        if ($LASTEXITCODE -ne 0) {
+            kind load docker-image $img --name $clusterName
+        }
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warn "  Could not load $img — it will be pulled at deploy time"
+        }
+    }
+    Write-Info "Image loading complete."
+} else {
+    Write-Info "No downloaded-images.txt found — run init-workshop.ps1 first to pre-load images."
+}
+
 # ─── Create Anthropic API key secret ─────────────────────────────────────────
 Write-Info "Creating anthropic-secret in namespace 'default'..."
 kubectl create secret generic anthropic-secret `
