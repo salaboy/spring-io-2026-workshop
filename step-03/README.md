@@ -100,7 +100,7 @@ Congrats! You just validate your store app can receive PubSub messages and trans
 > You may still have a `jaeger` container running as we've asked Testcontainers to reuse previous instances. You can now safely stop it to save a few resources.
 
 ```bash
-cd step-03/store
+cd step-03
 
 docker compose up -d
 ```
@@ -199,6 +199,8 @@ mvn spring-boot:run
 Open your browser at [http://localhost:8080](http://localhost:8080).
 
 Place an order and observe real-time WebSocket events in the UI. 🎉
+
+Check `jaeger` to explore the different traces and spans created by the different components.
 
 ---
 
