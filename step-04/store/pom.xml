@@ -17,7 +17,8 @@
     <properties>
         <java.version>21</java.version>
         <spring-ai.version>2.0.0-M4</spring-ai.version>
-        <dapr.version>1.17.2-rc-2</dapr.version>
+        <dapr.version>1.17.3-rc-1</dapr.version>
+<!--        <dapr.version>1.18.0-SNAPSHOT</dapr.version>-->
         <skip.frontend.build>false</skip.frontend.build>
         <grpc.version>1.68.0</grpc.version>
     </properties>

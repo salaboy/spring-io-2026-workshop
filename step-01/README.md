@@ -24,12 +24,6 @@ Browser ──► Store (port 8080)
 
 Traces are exported via OTLP to a local Jaeger instance spun up automatically by Testcontainers during tests.
 
-## Prerequisites
-
-- Java 21 — [adoptium.net](https://adoptium.net/temurin/releases/?version=21)
-- Maven — [maven.apache.org](https://maven.apache.org/download.cgi)
-- Docker — [docker.com](https://www.docker.com/products/docker-desktop/) (required by Testcontainers)
-- An Anthropic API key — [Anthorpic Get Started](https://platform.claude.com/docs/en/get-started)
 
 ## Running the application
 
@@ -38,7 +32,7 @@ cd step-01/store
 
 export ANTHROPIC_API_KEY=your-key-here
 
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 Open your browser at [http://localhost:8080](http://localhost:8080).
@@ -50,20 +44,20 @@ The test suite uses Testcontainers to start Jaeger (for OTEL trace collection). 
 ```bash
 cd step-01/store
 
-mvn spring-boot:test-run
+./mvnw spring-boot:test-run
 ```
 
 If you want to run it without `ANTHROPIC_API_KEY`, you can simulate calls to the LLMC using with Microcks: 
 
 ```bash
-mvn clean -Dspring-boot.run.jvmArguments="-Dmicrocks.enabled=true" spring-boot:test-run
+./mvnw clean -Dspring-boot.run.jvmArguments="-Dmicrocks.enabled=true" spring-boot:test-run
 ```
 
 > [!IMPORTANT]
 > When using Microcks to simulate LLM class, you must click on **SendSync** on the UI instead of **Send**
 > (so that exchanges are not using streaming but basic request/response via the `/api/chat` endpoint). 
 
-You can prompt for **"List all items"** and you should be able to see the results. 
+You can prompt for **"List all items"** and you should be able to see the results. Use the **"Send Sync"** button.
 
 > [!TIP]
 > Microcks mocks only respond with canned response to certain specific questions. You can check the mocks 

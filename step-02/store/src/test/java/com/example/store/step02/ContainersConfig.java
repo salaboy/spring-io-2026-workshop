@@ -5,6 +5,7 @@ import io.github.microcks.testcontainers.MicrocksContainer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.micrometer.tracing.opentelemetry.autoconfigure.otlp.OtlpTracingConnectionDetails;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.lang.Nullable;
@@ -100,7 +101,7 @@ public class ContainersConfig {
     }
 
     @Bean
-    public DynamicPropertyRegistrar storeProperties(@Nullable GenericContainer<?> warehouseMcpContainer) {
+    public DynamicPropertyRegistrar storeProperties(@Qualifier("warehouseMcpContainer") @Nullable GenericContainer<?> warehouseMcpContainer) {
         return registry -> {
             if (warehouseMcpContainer != null) {
                 registry.add("spring.ai.mcp.client.streamable-http.connections.warehouse-mcp.url",

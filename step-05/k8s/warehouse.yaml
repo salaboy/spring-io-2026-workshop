@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: warehouse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: warehouse
+  template:
+    metadata:
+      labels:
+        app: warehouse
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: "opentelemetry/instrumentation"  
+    spec:
+      containers:
+        - name: warehouse
+          image: ghcr.io/salaboy/springio-warehouse:step-02
+          ports:
+            - containerPort: 8086
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: warehouse
+spec:
+  selector:
+    app: warehouse
+  ports:
+    - port: 8086
+      targetPort: 8086
+  type: ClusterIP

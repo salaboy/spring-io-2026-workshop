@@ -8,6 +8,31 @@ This hands-on workshop walks you through building a production-grade AI-powered 
 
 Each step builds on the previous one, introducing new patterns and tools. You can follow the steps in order or jump to any step directly using the provided starting code.
 
+## Getting Started
+
+Start by cloning the repository and entering the project directory:
+
+```bash
+git clone https://github.com/salaboy/spring-io-2026-workshop.git
+cd spring-io-2026-workshop
+```
+
+Then run the `init-workshop` script to validate your local environment. It checks that all required tools are installed and configured correctly.
+
+**macOS/Linux:**
+```bash
+./init-workshop.sh
+```
+
+**Windows (PowerShell):**
+```powershell
+.\init-workshop.ps1
+```
+
+Review the output and fix any reported issues before continuing.
+
+---
+
 ## Prerequisites
 
 All steps require the following tools. Install them before starting.
@@ -20,24 +45,6 @@ Required for all Spring Boot services.
 - **Linux/Windows:** Download from [Adoptium](https://adoptium.net/temurin/releases/?version=21) or [Oracle](https://www.oracle.com/java/technologies/downloads/#java21)
 
 Verify: `java -version`
-
-### Maven
-
-Used to build and run the Spring Boot projects.
-
-- **macOS:** `brew install maven`
-- **All platforms:** Download from [maven.apache.org](https://maven.apache.org/download.cgi)
-
-Verify: `mvn -version`
-
-### Node.js (v22+) and npm
-
-Required to build the React frontend embedded in the store application. Maven handles this automatically during the build via the `frontend-maven-plugin`, but you need Node.js available on your system.
-
-- **macOS:** `brew install node`
-- **All platforms:** Download from [nodejs.org](https://nodejs.org/en/download)
-
-Verify: `node -v && npm -v`
 
 ### Docker (with Docker Compose)
 
@@ -54,14 +61,6 @@ The store application uses [Anthropic Claude](https://www.anthropic.com/claude) 
 1. Sign up or log in at [console.anthropic.com](https://console.anthropic.com/)
 2. Create an API key in your account settings
 3. Export it in your shell: `export ANTHROPIC_API_KEY=your-key-here`
-
-### Additional prerequisites by step
-
-| Tool | Required from | Install |
-|---|---|---|
-| kubectl | Step 5 | [kubernetes.io/docs/tasks/tools](https://kubernetes.io/docs/tasks/tools/) |
-| kind | Step 5 | [kind.sigs.k8s.io](https://kind.sigs.k8s.io/#installation) |
-| Helm 3 | Step 5 | [helm.sh/docs/intro/install](https://helm.sh/docs/intro/install/) |
 
 ---
 

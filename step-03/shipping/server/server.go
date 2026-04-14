@@ -9,12 +9,16 @@ import (
 
 	dapr "github.com/dapr/go-sdk/client"
 	pb "github.com/spring-io-2026-workshop/shipping/gen/shippingpb"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
 	pubsubName = "pubsub"
 	topic      = "shipments"
+	tracerName = "shipping-service"
 )
 
 type ShipmentStatusEvent struct {
@@ -49,6 +53,14 @@ func NewShippingServer(daprClient dapr.Client) *ShippingServer {
 }
 
 func (s *ShippingServer) ShipOrder(ctx context.Context, req *pb.ShipOrderRequest) (*pb.ShipOrderResponse, error) {
+	tracer := otel.Tracer(tracerName)
+	ctx, span := tracer.Start(ctx, "ShipOrder",
+		trace.WithAttributes(
+			attribute.String("order.id", req.GetOrderId()),
+		),
+	)
+	defer span.End()
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -68,20 +80,40 @@ func (s *ShippingServer) ShipOrder(ctx context.Context, req *pb.ShipOrderRequest
 	}
 	s.shipments[shipmentID] = shipment
 
+	span.SetAttributes(attribute.String("shipment.id", shipmentID))
 	log.Printf("Shipment %s created for order %s", shipmentID, req.GetOrderId())
 
 	// Publish "pending" event immediately
 	s.publishStatusEvent(ctx, shipmentID, "pending")
 
+	// Capture span context to link async status update spans back to this request.
+	spanCtx := span.SpanContext()
+
 	// Schedule async "shipped" after 3s and "delivered" after 10s
 	go func() {
 		time.Sleep(3 * time.Second)
 		s.updateStatus(shipmentID, pb.ShipmentStatus_SHIPPED)
-		s.publishStatusEvent(context.Background(), shipmentID, "shipped")
+		asyncCtx, asyncSpan := tracer.Start(context.Background(), "ShipmentStatusUpdate",
+			trace.WithLinks(trace.Link{SpanContext: spanCtx}),
+			trace.WithAttributes(
+				attribute.String("shipment.id", shipmentID),
+				attribute.String("shipment.status", "shipped"),
+			),
+		)
+		s.publishStatusEvent(asyncCtx, shipmentID, "shipped")
+		asyncSpan.End()
 
 		time.Sleep(10 * time.Second)
 		s.updateStatus(shipmentID, pb.ShipmentStatus_DELIVERED)
-		s.publishStatusEvent(context.Background(), shipmentID, "delivered")
+		asyncCtx2, asyncSpan2 := tracer.Start(context.Background(), "ShipmentStatusUpdate",
+			trace.WithLinks(trace.Link{SpanContext: spanCtx}),
+			trace.WithAttributes(
+				attribute.String("shipment.id", shipmentID),
+				attribute.String("shipment.status", "delivered"),
+			),
+		)
+		s.publishStatusEvent(asyncCtx2, shipmentID, "delivered")
+		asyncSpan2.End()
 	}()
 
 	return &pb.ShipOrderResponse{

@@ -1,5 +1,9 @@
 package com.example.store.step01.tracing;
 
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.context.Context;
+
+import org.springframework.boot.restclient.RestClientCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.support.ContextPropagatingTaskDecorator;
@@ -12,4 +16,17 @@ public class ContextPropagationConfiguration {
         return new ContextPropagatingTaskDecorator();
     }
 
+    @Bean
+    RestClientCustomizer tracePropagationRestClientCustomizer(OpenTelemetry openTelemetry) {
+        return builder -> builder.requestInterceptor((request, body, execution) -> {
+            openTelemetry.getPropagators().getTextMapPropagator().inject(
+                    Context.current(),
+                    request.getHeaders(),
+                    (headers, key, value) -> headers.set(key, value)
+            );
+            return execution.execute(request, body);
+        });
+    }
+
 }
+
