@@ -7,6 +7,6 @@ spec:
     samplingRate: '1'
     stdout: true
     otel:
-      endpointAddress: jaeger:4318
+      endpointAddress: jaeger:4317
       isSecure: false
-      protocol: http
+      protocol: grpc

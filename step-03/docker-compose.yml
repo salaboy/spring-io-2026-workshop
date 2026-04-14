@@ -10,13 +10,14 @@ services:
       - "host.docker.internal:host-gateway"
     command: [
       "./daprd",
-      "--app-id", "store",
+      "--app-id", "store-dapr",
       "--app-channel-address", "host.docker.internal",
       "--app-port", "8080",
       "--app-protocol", "http",
       "--placement-host-address", "placement:50006", # Dapr's placement service can be reach via the docker DNS entry
       "--scheduler-host-address", "scheduler:50007", # Dapr's scheduler service can be reach via the docker DNS entry
-      "--resources-path", "./components"
+      "--resources-path", "./components",
+      "--config", "/components/configuration.yaml" # Reference the Dapr configuration defined in components/configuration.yaml
     ]
     ports:
       - "50001:50001" # Dapr sidecar gRPC port
