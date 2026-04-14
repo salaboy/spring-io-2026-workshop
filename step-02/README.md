@@ -85,7 +85,63 @@ application.warehouse-base-url=http://localhost:8086
 
 ## Exercises
 
-### Exercise T1: Run warehouse-mcp with a Mocked Warehouse
+### Exercise T1: Contract-Test warehouse
+
+**Goal:** Learn how Microcks + TestContainers decouples services during development and testing. You will use the OpenAPI contract, to validate that the warehouse component is conformant to the specification. That way, future integration with warehouse-mcp will be smooth.
+
+**Background:** `ContainersConfig` in warehouse declares a Microcks container that is only started when the property `microcks.enabled=true` is set. When Microcks is active, it is loaded with the `warehouse-openapi-1.0.0.yaml` contract that holds the API definition + samples — three Spring Boot products (T-Shirt, Socks, Sticker). Microcks will use these information to automatically create a test suite and acts as a client of the Warehouse API.
+
+**Steps:**
+
+1. Review the `WarehouseAPIContractTests` in `warehouse/src/test/com/example/warehouse/step02`, the `microcks` container is injected into the test class:
+
+   ```java
+   @Autowired
+   protected MicrocksContainer microcks;
+   ```
+
+   We'll then ask `microcks` to launch some tests for us, ensuring the conformance of the warehouse api with the OpenAPI definition. This is done by creating a `TestRequest` and firing the test:
+
+   ```java
+   TestRequest testRequest = new TestRequest.Builder()
+      .serviceId("Warehouse API:1.0.0")
+      .runnerType(TestRunnerType.OPEN_API_SCHEMA.name())
+      .testEndpoint("http://host.testcontainers.internal:" + port)
+      .build();
+
+   TestResult testResult = microcks.testEndpoint(testRequest);
+   ```
+
+   Do you understand where this `host.testcontainers.internal` comes from and whay you need it?
+
+2. Now look at `warehouse/src/test/resources/warehouse-openapi-1.0.0.yaml`. The `examples` blocks under each endpoint define what Microcks will exatrct as sample information.
+
+3. Run warehouse tests with Microcks enabled:
+
+   ```bash
+   cd step-02/warehouse
+   TESTCONTAINERS_REUSE_ENABLE=true mvn clean \
+     -Dspring-boot.run.arguments="--reuse=true" \
+     -Dspring-boot.run.jvmArguments="-Dmicrocks.enabled=true" \
+     test
+   ```
+
+   Look for this line in the output — it confirms Microcks took over as the warehouse backend:
+   ```
+   [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.928 s -- in com.example.warehouse.step02.WarehouseAPIContractTests
+   ```
+
+4. Explore the detailed traces on console ouput and the assertions within the `WarehouseAPIContractTests` class.
+
+5. **Bonus:** Try adding more assertions in the test so that you can know precisely how many test steps were executed by Microcks when doing the conformance tests. Also, have a look at [Conformance Testing](https://microcks.io/documentation/explanations/conformance-testing/) in Microcks documentation. 
+
+**What to look for in the code:**
+- `ContainersConfig.java:68` — the `@ConditionalOnProperty` that gates the Microcks container
+- `warehouse-openapi-1.0.0.yaml` — the mock data driving all the test steps
+
+---
+
+### Exercise T2: Run warehouse-mcp with a Mocked Warehouse
 
 **Goal:** Learn how Microcks + TestContainers decouples services during development and testing. You will run the warehouse-mcp service against a Microcks mock instead of the real warehouse, then verify the store behaves correctly using only the mock inventory.
 
@@ -135,7 +191,7 @@ application.warehouse-base-url=http://localhost:8086
 
 ---
 
-### Exercise A2: Add a New MCP Tool — Filter Inventory by Product Type
+### Exercise A1: Add a New MCP Tool — Filter Inventory by Product Type
 
 **Goal:** Practice the `@McpTool` / `@McpToolParam` annotation pattern and understand how tools are discovered and called by the LLM over the MCP protocol.
 
