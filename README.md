@@ -1,6 +1,6 @@
 # Spring I/O Workshop 2026
 
-Building Testable, Durable and Observable Spring AI applications
+Building Testable, Durable and Observable Spring AI applications. [You can find the slides for this workshop here](https://speakerdeck.com/salaboy/o-2026-durable-observabable-and-testable-spring-ai-applications)
 
 ## Introduction
 
