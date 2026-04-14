@@ -29,6 +29,32 @@ Pop-Location
 Write-Info "Maven dependencies fetched successfully."
 
 
+# ─── Step-03 Docker Compose images ───────────────────────────────────────────
+Write-Info "=== Step-03 Docker Compose images ==="
+$step03Images = @(
+    "jaegertracing/jaeger",
+    "quay.io/microcks/microcks-uber:1.13.2-native",
+    "quay.io/microcks/microcks-uber-async-minion:1.13.2",
+    "apache/kafka",
+    "daprio/placement",
+    "daprio/scheduler",
+    "daprio/daprd:1.17.0",
+    "ghcr.io/salaboy/springio-shipping:step-03",
+    "library/postgres:17-alpine",
+    "registry.reshapr.io/reshapr/reshapr-ctrl:nightly",
+    "registry.reshapr.io/reshapr/reshapr-proxy:nightly"
+)
+
+foreach ($img in $step03Images) {
+    Write-Info "  Pulling $img"
+    docker pull $img
+    if ($LASTEXITCODE -eq 0) {
+        Add-Content -Path $imagesFile -Value $img
+    } else {
+        Write-Warn "  Failed to pull $img (skipping)"
+    }
+}
+
 # ─── Check Java ───────────────────────────────────────────────────────────────
 if (-not (Get-Command java -ErrorAction SilentlyContinue)) {
     Write-Warn "Java is not installed or not on PATH. Java 21+ is required to build the workshop projects."
@@ -180,6 +206,8 @@ Pull-ChartImages -ReleaseName "opentelemetry-operator" -HelmArgs @(
     "--namespace", "opentelemetry",
     "--set", "manager.extraArgs={--enable-go-instrumentation}"
 )
+
+
 
 # ─── Application images (from step-05/k8s/ manifests) ────────────────────────
 Write-Info "=== Application images ==="

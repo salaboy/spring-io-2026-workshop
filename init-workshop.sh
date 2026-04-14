@@ -17,6 +17,31 @@ cd "$SCRIPT_DIR/step-01/store"
 cd "$SCRIPT_DIR"
 info "Maven dependencies fetched successfully."
 
+# ─── Step-03 Docker Compose images ───────────────────────────────────────────
+info "=== Step-03 Docker Compose images ==="
+STEP03_IMAGES=(
+  "jaegertracing/jaeger"
+  "quay.io/microcks/microcks-uber:1.13.2-native"
+  "quay.io/microcks/microcks-uber-async-minion:1.13.2"
+  "apache/kafka"
+  "daprio/placement"
+  "daprio/scheduler"
+  "daprio/daprd:1.17.0"
+  "ghcr.io/salaboy/springio-shipping:step-03"
+  "library/postgres:17-alpine"
+  "registry.reshapr.io/reshapr/reshapr-ctrl:nightly"
+  "registry.reshapr.io/reshapr/reshapr-proxy:nightly"
+)
+
+for img in "${STEP03_IMAGES[@]}"; do
+  info "  Pulling $img"
+  if docker pull "$img"; then
+    echo "$img" >> "$IMAGES_FILE"
+  else
+    warn "  Failed to pull $img (skipping)"
+  fi
+done
+
 
 # ─── Check Java ──────────────────────────────────────────────────────────────
 if ! command -v java &>/dev/null; then
@@ -143,6 +168,8 @@ info "=== OpenTelemetry Operator ==="
 pull_chart_images opentelemetry-operator open-telemetry/opentelemetry-operator \
   --namespace opentelemetry \
   --set "manager.extraArgs={--enable-go-instrumentation}"
+
+
 
 # ─── Application images (from step-05/k8s/ manifests) ────────────────────────
 info "=== Application images ==="
